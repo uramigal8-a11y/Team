@@ -1,12 +1,7 @@
-﻿/* Це загальні стилі для всього сайту */
-body {
-    background-color: #f0f4f8; /* Світло-блакитний фон */
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 50px;
-}
+﻿body {
+    body
 
+<<<<<<< HEAD
 .card {
     background: white;
     padding: 30px;
@@ -24,6 +19,13 @@ body {
     object-fit: cover; /* Запобігає розтягуванню зображення */
     border: 5px solid #f0f4f8; /* Легка рамка навколо фото */
     margin-bottom: 20px; /* Відступ знизу від фото */
+=======
+{
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 40px;
+    background-color: #f4f4f4;
+>>>>>>> parent of dc00762 (Merge pull request #1 from uramigal8-a11y/feature_Myhal_Yurii)
 }
 
 h1 {
@@ -37,6 +39,7 @@ p {
     line-height: 1.5;
     margin: 10px 0;
 }
+<<<<<<< HEAD
 
 a {
     color: #007bff;
@@ -72,4 +75,6 @@ hr {
     border: 0;
     border-top: 1px solid #eee;
     margin: 20px 0;
+=======
+>>>>>>> parent of dc00762 (Merge pull request #1 from uramigal8-a11y/feature_Myhal_Yurii)
 }
