@@ -74,7 +74,7 @@ hr {
     margin: 20px 0;
 }
 
-/* Головна сторінка: перемикач світлої/темної теми тільки через CSS */
+/* Головна сторінка: перемикач світлої/темної теми через JavaScript */
 .home-page {
     background-color: #f3f7fb;
     font-family: "Segoe UI", "Trebuchet MS", sans-serif;
@@ -89,17 +89,7 @@ hr {
     box-sizing: border-box;
 }
 
-.home-page .home-theme-toggle-input {
-    position: fixed;
-    top: calc(16px + env(safe-area-inset-top, 0px));
-    right: calc(16px + env(safe-area-inset-right, 0px));
-    width: 1px;
-    height: 1px;
-    opacity: 0.01;
-    z-index: 11;
-}
-
-.home-page .home-theme-toggle-label {
+.home-page .home-theme-toggle-button {
     position: fixed;
     top: calc(12px + env(safe-area-inset-top, 0px));
     right: calc(12px + env(safe-area-inset-right, 0px));
@@ -121,7 +111,7 @@ hr {
     box-shadow: 0 8px 20px rgba(20, 52, 84, 0.14);
 }
 
-.home-page .home-theme-toggle-input:focus-visible + .home-theme-toggle-label {
+.home-page .home-theme-toggle-button:focus-visible {
     outline: 3px solid #0e639c;
     outline-offset: 3px;
 }
@@ -135,23 +125,11 @@ hr {
     display: none;
 }
 
-.home-page .home-theme-toggle-text-dark {
+.home-page[data-home-theme='dark'] .home-theme-icon-sun {
     display: none;
 }
 
-.home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-icon-sun {
-    display: none;
-}
-
-.home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-icon-moon {
-    display: inline;
-}
-
-.home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-toggle-text-light {
-    display: none;
-}
-
-.home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-toggle-text-dark {
+.home-page[data-home-theme='dark'] .home-theme-icon-moon {
     display: inline;
 }
 
@@ -199,7 +177,7 @@ hr {
         var(--home-bg);
 }
 
-.home-page .home-theme-toggle-input:checked ~ .home-shell {
+.home-page[data-home-theme='dark'] .home-shell {
     --home-bg: #0a0a0a;
     --home-surface: #141414;
     --home-surface-soft: #1d1d1d;
@@ -218,7 +196,7 @@ hr {
     --home-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
 }
 
-.home-page .home-theme-toggle-input:checked + .home-theme-toggle-label {
+.home-page[data-home-theme='dark'] .home-theme-toggle-button {
     border-color: #4a4a4a;
     background: rgba(19, 19, 19, 0.96);
     color: #f5f5f5;
@@ -337,6 +315,18 @@ hr {
     outline-offset: 3px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .home-page .team-list li,
+    .home-page .home-team-list a {
+        transition: none;
+    }
+
+    .home-page .team-list li:hover,
+    .home-page .home-team-list li:hover {
+        transform: none;
+    }
+}
+
 @media (max-width: 480px) {
     .home-page {
         padding:
@@ -346,12 +336,7 @@ hr {
             calc(12px + env(safe-area-inset-left, 0px));
     }
 
-    .home-page .home-theme-toggle-input {
-        top: calc(12px + env(safe-area-inset-top, 0px));
-        right: calc(12px + env(safe-area-inset-right, 0px));
-    }
-
-    .home-page .home-theme-toggle-label {
+    .home-page .home-theme-toggle-button {
         top: calc(8px + env(safe-area-inset-top, 0px));
         right: calc(8px + env(safe-area-inset-right, 0px));
         padding: 9px 12px;

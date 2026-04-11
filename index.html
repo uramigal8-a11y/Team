@@ -7,13 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="home-page">
-    <input type="checkbox" id="home-theme-toggle" class="home-theme-toggle-input">
-    <label for="home-theme-toggle" class="home-theme-toggle-label">
+    <button type="button" class="home-theme-toggle-button" aria-live="polite" aria-pressed="false" aria-label="Увімкнути темну тему">
         <span class="home-theme-icon home-theme-icon-sun" aria-hidden="true">☀</span>
         <span class="home-theme-icon home-theme-icon-moon" aria-hidden="true">🌙</span>
-        <span class="home-theme-toggle-text home-theme-toggle-text-light">Режим: світла тема</span>
-        <span class="home-theme-toggle-text home-theme-toggle-text-dark">Режим: темна тема</span>
-    </label>
+    </button>
     <main class="home-shell" aria-labelledby="home-title">
         <section class="home-hero card">
             <h1 id="home-title">Команда Big Men</h1>
@@ -57,5 +54,6 @@
             </div>
         </section>
     </main>
+    <script src="script.js"></script>
 </body>
 </html>

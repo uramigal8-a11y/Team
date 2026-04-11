@@ -1,0 +1,245 @@
+plan_id: adhoc-js-theme-toggle-2026-04-11
+objective: "Migrate homepage theme toggle from CSS-only checkbox mechanics to JavaScript-driven behavior with default light mode, icon swap, and homepage-scoped non-regressing styles."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 1
+  risk_score: medium
+
+tldr: |
+  - Current homepage theming is CSS-only via `.home-theme-toggle-input` checked selectors and sibling combinators, with markup in `index.html` and behavior styles in `style.css` (source: index.html:10-17, style.css:92-226).
+  - Safe migration requires removing CSS-only toggle blocks, preserving shared homepage theme tokens, and replacing state control with JS while keeping default light mode on load (source: docs/plan/adhoc-theme-toggle-2026-04-11/research_findings_theme_toggle_inventory.yaml).
+  - Homepage scoping under `.home-page` must be preserved to avoid profile regressions because `style.css` is shared across profile pages (source: AGENTS.md:3, style.css:75-360, Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html).
+  - Execution is constrained to minimal implementation files (`index.html`, `style.css`) plus a concise docs sync artifact (source: user request; .github/copilot-instructions.md).
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "JS toggle initializes too late or with wrong default, causing flash of incorrect theme or unexpected dark-first rendering."
+      likelihood: medium
+      impact: high
+      mitigation: "Keep CSS default tokens as light theme, and have JS set explicit `data-home-theme=light` at startup before attaching click handlers."
+    - scenario: "Removing CSS-only selectors accidentally drops required visual styles for the top-right control or homepage token consumption."
+      likelihood: medium
+      impact: medium
+      mitigation: "Remove only checkbox-specific selector blocks, retain reusable `.home-theme-toggle-label`, icon base styles, and `.home-shell` token consumers."
+    - scenario: "Homepage theme selectors lose `.home-page` scoping and leak into profile pages that reuse shared classes."
+      likelihood: medium
+      impact: high
+      mitigation: "Require all new/updated theme selectors to remain prefixed by `.home-page`; verify all profile pages manually after changes."
+    - scenario: "Icon state or accessibility attributes drift from actual mode, confusing users and screen readers."
+      likelihood: medium
+      impact: medium
+      mitigation: "On every state change, update icon visibility, `aria-label`, and accessible text in one JS function with deterministic mapping."
+  assumptions:
+    - "Inline script in `index.html` is acceptable within project constraints because stack is plain HTML/CSS/JS and no build tooling is used (source: .github/copilot-instructions.md)."
+    - "Theme preference persistence across page reload is expected for JS migration and can use localStorage with strict `light|dark` validation (source: research_findings_theme_toggle_inventory.yaml: approach/domain_security_considerations)."
+    - "Only homepage requires toggle behavior; profile pages keep existing behavior and are non-goal for theme interaction (source: user request; AGENTS.md:3)."
+
+implementation_specification:
+  code_structure: "Keep all behavior in `index.html` and `style.css`: replace checkbox-driven toggle markup with one top-right button control, add a small inline script for initialization/click handling/localStorage validation, and convert dark-mode CSS trigger from `:checked` sibling selectors to a homepage-scoped body data-attribute hook."
+  affected_areas:
+    - "index.html"
+    - "style.css"
+    - "docs/plan/adhoc-js-theme-toggle-2026-04-11/"
+  component_details:
+    - component: "Homepage toggle control markup"
+      responsibility: "Expose one top-right button with sun icon in light mode and moon icon in dark mode, plus Ukrainian accessible label text."
+      interfaces:
+        - "Button element with stable class hook for styling and JS binding"
+        - "Sun and moon icon spans toggled by JS"
+        - "Accessible name/state text synchronized with current mode"
+    - component: "Homepage theme style layer"
+      responsibility: "Retain required visual styles and token consumers while removing checkbox-only rules and enabling JS-driven dark mode selector."
+      interfaces:
+        - "`.home-page`-scoped light token defaults on `.home-shell`"
+        - "`.home-page[data-home-theme='dark'] .home-shell` (or equivalent scoped hook) for dark token overrides"
+        - "Top-right button visuals for both light/dark states"
+    - component: "Homepage theme controller script"
+      responsibility: "Set default light theme on load, restore valid stored preference, update icon/button state, and toggle theme on click."
+      interfaces:
+        - "Read/write localStorage key with strict allowed values"
+        - "Apply/remove homepage theme data attribute"
+        - "Single render/update function for icon + labels"
+  dependencies:
+    - component: "Homepage toggle control markup"
+      relationship: "Provides DOM nodes consumed by JS controller and CSS styles."
+    - component: "Homepage theme style layer"
+      relationship: "Consumes homepage data-attribute state written by JS controller."
+    - component: "Homepage theme controller script"
+      relationship: "Depends on stable markup hooks and updates state consumed by styles."
+  integration_points:
+    - "`index.html` body currently has `class='home-page'`; keep this as the root scope anchor for all new behavior and selectors (source: index.html:9)."
+    - "`style.css` currently contains checkbox-only selectors at style.css:92-100, 124-127, 134-156, 202-226, 349-352 that should be removed or replaced minimally (source: research_findings_theme_toggle_inventory.yaml)."
+    - "Homepage content sections and profile links must remain unchanged functionally (source: index.html:18-58)."
+
+contracts:
+  - from_task: T1
+    to_task: T2
+    interface: "Compact implementation summary listing removed CSS-only blocks, new JS state hook, storage key used, and manual non-regression results on homepage/profile pages."
+    format: "Markdown bullets in a short note under docs/plan/adhoc-js-theme-toggle-2026-04-11/."
+
+tasks:
+  - id: T1
+    title: "Implement JS-driven homepage theme toggle migration in minimal files"
+    description: |
+      Replace the current CSS-only checkbox toggle with a JavaScript-controlled top-right button on the homepage.
+      Remove previously added checkbox-only toggle markup and CSS blocks to save space, keeping only styles still needed
+      for button layout, icon rendering, homepage theme tokens, and scoped visual consistency.
+      Ensure startup defaults to light mode, button shows sun in light mode and moon in dark mode,
+      clicking toggles theme + icon + accessible label, and theme state is applied through `.home-page`-scoped hooks only.
+      Keep implementation limited to `index.html` and `style.css`.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "AC-1 remove CSS-only toggle code"
+      - "AC-2 keep only required styles"
+      - "AC-3 default light theme on load"
+      - "AC-4 top-right sun/moon icon behavior"
+      - "AC-5 click toggles themes"
+      - "AC-6 homepage scoping and profile non-regression"
+      - "AC-7 minimal implementation files"
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: index.html
+        description: "Contains current checkbox toggle markup and homepage structure to preserve."
+      - path: style.css
+        description: "Contains current checkbox selectors and homepage-scoped theme token system."
+      - path: AGENTS.md
+        description: "Defines mandatory `.home-page` scoping to avoid profile regressions."
+    verification:
+      - "Load homepage with cleared storage key and confirm light theme is applied by default."
+      - "Verify top-right button shows sun in light mode, moon in dark mode, and updates on click."
+      - "Verify click toggles homepage colors via scoped selector and does not require checkbox pseudo-class selectors."
+      - "Inspect CSS and confirm checkbox-only blocks were removed while retained styles still support layout and tokens."
+      - "Open each profile page and confirm no visual regressions from homepage theme changes."
+      - "Confirm only `index.html` and `style.css` were required for implementation changes."
+    acceptance_criteria:
+      - "Previously added CSS-only theme toggle code is removed from homepage markup/CSS."
+      - "Only necessary toggle/theme styles remain after cleanup."
+      - "Homepage loads in light theme by default."
+      - "Top-right toggle button displays sun icon in light mode and moon icon in dark mode."
+      - "Theme toggles correctly on each click."
+      - "All theme selectors remain scoped to homepage; profile pages are unaffected."
+      - "Implementation changes are minimized to `index.html` and `style.css`."
+    failure_modes:
+      - scenario: "Residual CSS-only selectors conflict with JS state selector, causing inconsistent dark-mode activation."
+        likelihood: medium
+        impact: high
+        mitigation: "Search and remove all `home-theme-toggle-input`-driven selectors and verify dark mode relies on one state hook."
+      - scenario: "State initialization runs after paint and visually flickers between themes."
+        likelihood: medium
+        impact: medium
+        mitigation: "Apply initial state at script start and keep CSS default as light."
+      - scenario: "Profile pages inherit unintended style changes due to selector broadening."
+        likelihood: medium
+        impact: high
+        mitigation: "Constrain all new selectors to `.home-page` and run manual profile-page regression checks."
+
+  - id: T2
+    title: "Sync concise migration note"
+    description: |
+      Produce a short documentation update capturing what was removed from CSS-only implementation,
+      what JS state hook/storage behavior was introduced, and which manual checks confirmed homepage/profile safety.
+      Keep this artifact concise and colocated with this plan folder.
+    wave: 2
+    agent: gem-documentation-writer
+    prototype: false
+    covers:
+      - "AC-8 documentation parity"
+    priority: low
+    status: pending
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/adhoc-js-theme-toggle-2026-04-11/plan.yaml
+        description: "Source-of-truth for execution scope and validation requirements."
+      - path: index.html
+        description: "Final homepage markup state after migration."
+      - path: style.css
+        description: "Final scoped CSS state after cleanup and JS hook adoption."
+    verification:
+      - "Note is <= 12 lines and explicitly lists removed CSS-only pieces plus new JS-driven state contract."
+      - "Note includes manual regression outcome across all profile pages."
+    acceptance_criteria:
+      - "Documentation is concise, accurate, and consistent with implemented files."
+      - "Migration note captures cleanup, JS behavior, and non-regression evidence."
+    failure_modes:
+      - scenario: "Doc note drifts from actual implementation details and misstates removed/kept selectors."
+        likelihood: low
+        impact: medium
+        mitigation: "Cross-check final `index.html` and `style.css` before writing note."
+
+planning_pass: 1
+planning_history:
+  - pass: 1
+    reason: "Initial plan for minimal-file migration from CSS-only toggle mechanics to JS-driven homepage behavior with profile-safe scoping."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 220
+    focus_area: "homepage theme toggle migration"
+    verification:
+      - "Default light theme initialization and click toggle behavior are validated on homepage."
+      - "Sun/moon icon mapping and accessible label updates are validated for both modes."
+      - "Profile pages are manually verified for non-regression."
+      - "Concise documentation note reflects actual implementation deltas."
+    acceptance_criteria:
+      - "CSS-only toggle code is removed and replaced by JS-driven state handling."
+      - "Theme behavior stays scoped to homepage and does not regress profile pages."
+      - "Implementation remains minimal to index.html/style.css plus concise docs sync."
+    failure_modes:
+      - scenario: "Migration keeps mixed state mechanisms (checkbox + JS), causing inconsistent behavior."
+        likelihood: medium
+        impact: high
+        mitigation: "Standardize on one JS-driven state hook and remove checkbox-state CSS paths."
+      - scenario: "Documentation note drifts from implemented selectors/behavior."
+        likelihood: low
+        impact: low
+        mitigation: "Cross-check final files before recording migration summary."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+      - "Vanilla JavaScript"
+      - "Markdown"
+    test_coverage: "Manual browser verification on homepage and all profile pages"
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    validation_matrix:
+      - scenario: "Default load behavior"
+        steps:
+          - "Open index.html with empty or invalid theme key"
+          - "Observe initial mode and icon"
+        expected_result: "Light theme with sun icon"
+      - scenario: "Toggle interaction"
+        steps:
+          - "Click top-right button"
+          - "Click again"
+        expected_result: "Theme and icon alternate dark/moon then light/sun"
+      - scenario: "Profile non-regression"
+        steps:
+          - "Open each profile page directly"
+          - "Compare with baseline appearance/links"
+        expected_result: "No unintended style changes from homepage theme migration"
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Removed CSS-only blocks"
+      - "JS init + click behavior"
+      - "Homepage scoping integrity"
+      - "Profile non-regression evidence"

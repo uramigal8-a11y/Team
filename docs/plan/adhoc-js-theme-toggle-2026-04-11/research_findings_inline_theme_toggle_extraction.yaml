@@ -1,0 +1,240 @@
+plan_id: adhoc-js-theme-toggle-2026-04-11
+objective: "Confirm current inline homepage theme-toggle script and map exact safe extraction to external JS without behavior change."
+focus_area: inline_theme_toggle_extraction
+created_at: "2026-04-11"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - `index.html` currently contains an inline IIFE that drives theme toggle state, localStorage persistence, and ARIA updates (source: index.html:57-104).
+  - Current behavior contract is: default light fallback, valid stored values only (`light|dark`), `data-home-theme` attribute on `.home-page`, and click-based toggle persistence (source: index.html:67-102).
+  - CSS already consumes `data-home-theme='dark'` for icon swap, token overrides, and button dark styling, so extraction can be JS-file-only if execution order is preserved (source: style.css:128-133, style.css:180-203).
+  - Safe no-regression extraction is to move the exact script body into an external file and replace inline block with one deferred script include placed at same DOM position before `</body>` (source: index.html:57-105).
+
+research_metadata:
+  methodology: "Single-pass hybrid retrieval: semantic_search + grep_search + targeted read_file + numbered PowerShell reads for exact line evidence."
+  scope: "Homepage theme toggle behavior and dependencies in index.html/style.css, plus shared-style impact checks via AGENTS.md and profile stylesheet usage."
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: AGENTS.md
+  path: d:/MyFiles/Team/AGENTS.md
+  purpose: "Repository convention for homepage scoping safety."
+  key_elements:
+  - element: "Homepage styles scoping note"
+    type: pattern
+    location: AGENTS.md:3
+    description: "Homepage styles must stay under `.home-page` to avoid profile regressions."
+  language: Markdown
+  lines: 3
+
+- file: index.html
+  path: d:/MyFiles/Team/index.html
+  purpose: "Homepage markup and current inline theme-toggle logic."
+  key_elements:
+  - element: "Toggle button markup"
+    type: pattern
+    location: index.html:10-13
+    description: "Button `.home-theme-toggle-button` with sun/moon icon spans."
+  - element: "Inline IIFE script"
+    type: function
+    location: index.html:57-104
+    description: "Initializes theme, applies data attribute, updates aria attrs, handles click toggle and storage."
+  - element: "Storage key"
+    type: variable
+    location: index.html:61
+    description: "Uses `home-theme` in localStorage."
+  - element: "Theme state application"
+    type: function
+    location: index.html:84-93
+    description: "Sets `data-home-theme` on `.home-page` and syncs button aria state/label."
+  language: HTML
+  lines: 106
+
+- file: style.css
+  path: d:/MyFiles/Team/style.css
+  purpose: "Homepage theme visual behavior bound to body data attribute."
+  key_elements:
+  - element: "Default moon hidden"
+    type: pattern
+    location: style.css:124-126
+    description: "Moon icon hidden in default (light) mode."
+  - element: "Dark icon swap"
+    type: pattern
+    location: style.css:128-133
+    description: "In dark mode, hide sun and show moon using `.home-page[data-home-theme='dark']`."
+  - element: "Dark token override"
+    type: pattern
+    location: style.css:180-197
+    description: "Dark theme CSS variable values on `.home-shell` when body carries dark attribute."
+  - element: "Dark toggle button styling"
+    type: pattern
+    location: style.css:199-203
+    description: "Button visuals switch for dark mode via same attribute selector."
+  language: CSS
+  lines: 339
+
+- file: Myhal.html
+  path: d:/MyFiles/Team/Myhal_Yurii/Myhal.html
+  purpose: "Profile page dependency check on shared stylesheet."
+  key_elements:
+  - element: "Shared stylesheet link"
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:7
+    description: "Imports `../style.css`."
+  language: HTML
+  lines: 26
+
+- file: Kovalov.html
+  path: d:/MyFiles/Team/Matvii_Kovalov/Kovalov.html
+  purpose: "Profile page dependency check on shared stylesheet."
+  key_elements:
+  - element: "Shared stylesheet link"
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:7
+    description: "Imports `../style.css`."
+  language: HTML
+  lines: 26
+
+- file: Sviatoslav.html
+  path: d:/MyFiles/Team/Sviatoslav_Lylo/Sviatoslav.html
+  purpose: "Profile page dependency check on shared stylesheet."
+  key_elements:
+  - element: "Shared stylesheet link"
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:7
+    description: "Imports `../style.css`."
+  language: HTML
+  lines: 26
+
+patterns_found:
+- category: architecture
+  pattern: "Inline self-executing controller"
+  description: "Theme behavior is encapsulated in an inline IIFE executed after homepage DOM markup."
+  examples:
+  - file: index.html
+    location: index.html:57-104
+    snippet: "(function () { ... toggleButton.addEventListener('click', ...); }());"
+  prevalence: common
+
+- category: structure
+  pattern: "Attribute-driven theming"
+  description: "JS writes `data-home-theme` on `.home-page`; CSS selectors consume this attribute to switch visuals and tokens."
+  examples:
+  - file: index.html
+    location: index.html:87
+    snippet: "homePage.setAttribute('data-home-theme', nextTheme);"
+  - file: style.css
+    location: style.css:128-133
+    snippet: ".home-page[data-home-theme='dark'] .home-theme-icon-sun/.moon"
+  - file: style.css
+    location: style.css:180-203
+    snippet: "Dark token and toggle-button overrides keyed by `data-home-theme='dark'`."
+  prevalence: common
+
+- category: naming
+  pattern: "Homepage namespacing"
+  description: "Homepage-specific classes/selectors use `home-` prefix and `.home-page` scope."
+  examples:
+  - file: index.html
+    location: index.html:9-14
+    snippet: "`body.home-page`, `.home-theme-toggle-button`, `.home-theme-icon-*`."
+  - file: style.css
+    location: style.css:92-203
+    snippet: "All toggle/theme selectors begin with `.home-page ...`."
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Homepage toggle button"
+    responsibility: "Receives user clicks; exposes ARIA state and theme intent label."
+    location: index.html:10-13
+    relationship_to_domain: "domain depends on this"
+  - component: "Inline theme controller"
+    responsibility: "Computes current theme, applies DOM state, and persists preference."
+    location: index.html:57-104
+    relationship_to_domain: "domain depends on this"
+  - component: "Theme style layer"
+    responsibility: "Renders icon/theme visual differences from `data-home-theme`."
+    location: style.css:124-203
+    relationship_to_domain: "domain depends on this"
+  interfaces_used_by_domain:
+  - interface: "localStorage key `home-theme`"
+    location: index.html:61, index.html:69, index.html:78
+    usage_pattern: "Read at startup with strict value validation; write on each toggle."
+  - interface: "`data-home-theme` attribute on body.home-page"
+    location: index.html:87
+    usage_pattern: "Set by JS, consumed by multiple CSS selectors."
+  - interface: "Button click listener"
+    location: index.html:98-102
+    usage_pattern: "Flips in-memory state, reapplies theme, then persists."
+  data_flow_involving_domain: "Page load -> getStoredTheme (fallback light) -> applyTheme updates body attribute and aria attrs -> user click toggles state -> saveTheme persists -> CSS reacts via `[data-home-theme='dark']` selectors."
+  key_relationships_to_domain:
+  - from: index.html:84-93
+    to: style.css:128-133
+    relationship: "writes attribute consumed by icon visibility selectors"
+  - from: index.html:84-93
+    to: style.css:180-203
+    relationship: "writes attribute consumed by dark token/button selectors"
+  - from: AGENTS.md:3
+    to: style.css:78-339
+    relationship: "scoping constraint for homepage-only selectors"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - HTML5
+  - CSS3
+  - JavaScript (vanilla)
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain:
+  - name: "Web Storage API (localStorage)"
+    integration_point: index.html:69-79
+
+related_conventions:
+  naming_patterns_in_domain: "`home-` prefixed class names and `.home-page` scoped selectors."
+  structure_of_domain: "Interactive behavior script placed after main content near end of body."
+  error_handling_in_domain: "localStorage access is wrapped in try/catch with light-theme fallback/no-op persistence fallback."
+  testing_in_domain: "Manual verification expected; no automated tests in repository."
+  documentation_in_domain: "AGENTS and plan files track homepage-scoping and migration context."
+
+related_dependencies:
+  internal:
+  - component: style.css
+    relationship_to_domain: "Consumes `data-home-theme` state set by script."
+    direction: outbound
+  - component: index.html markup
+    relationship_to_domain: "Provides `.home-page` and `.home-theme-toggle-button` hooks required by script."
+    direction: outbound
+  - component: profile pages
+    relationship_to_domain: "Share same stylesheet; affected by any unscoped CSS changes."
+    direction: bidirectional
+  external:
+  - name: "Browser DOM API"
+    purpose_for_domain: "Query elements, set attributes, attach click handler."
+  - name: "Web Storage API"
+    purpose_for_domain: "Persist and restore theme preference."
+
+domain_security_considerations:
+  sensitive_areas:
+  - area: "Stored preference input validation"
+    location: index.html:69-70
+    concern: "Only `light|dark` accepted; invalid values normalized to `light`."
+  authentication_patterns_in_domain: "Not applicable."
+  authorization_patterns_in_domain: "Not applicable."
+  data_validation_in_domain: "Explicit whitelist check for storage values before use."
+
+open_questions:
+- question: "Should extraction preserve immediate execution timing exactly (no `defer`) or use `defer` on external file?"
+  context: "Current inline script executes at end of body after markup is parsed; both same-position external script and deferred head script can work but timing differs slightly."
+  type: nice_to_know
+  affects: ["T1"]
+
+gaps:
+- area: "No browser-runtime verification in this research pass"
+  description: "Research confirmed static code paths only; did not execute page to observe potential paint-timing differences during extraction."
+  impact: nice_to_know
+  affects: ["T1"]
