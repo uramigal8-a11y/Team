@@ -16,25 +16,38 @@
     <nav class="site-nav" aria-label="Навігація сторінками команди">
         <a href="../index.html">Головна</a>
         <a href="../Matvii_Kovalov/Kovalov.html">Ковальов Матвій</a>
-        <a href="../Sviatoslav_Lylo/Sviatoslav.html">Лило Святослав</a>
+        <a href="../Sviatoslav_Lylo/Sviatoslav.html">Святослав</a>
     </nav>
 
-    <div class="card">
-        <img src="../Foto/Fox.png" alt="Моє фото" class="profile-photo">
+    <main class="profile-main" aria-label="Профіль учасника">
+        <section class="card profile-block profile-intro" aria-label="Вступ">
+            <div class="profile-intro-media">
+                <img src="../Foto/Fox.png" alt="Фото Мигаля Юрія" class="profile-photo">
+            </div>
+            <div class="profile-intro-identity">
+                <h1>Мигаль Юрій</h1>
+                <p>Team Lead команди Big Men</p>
+            </div>
+        </section>
 
-        <h1>Привіт! 👋</h1>
+        <section class="card profile-block profile-study-place" aria-label="Де навчаюся">
+            <h2>Де я навчаюся</h2>
+            <p class="university">Студент 1-го курсу Прикладної математики і інформатики.</p>
+            <p class="university"><strong>ЛНУ імені Івана Франка</strong></p>
+        </section>
 
-        <p class="university">Я студент 1-го курсу</p>
-        <p class="university"><strong>ЛНУ імені Івана Франка</strong></p>
+        <section class="card profile-block profile-study-focus" aria-label="Що вивчаю та інтереси">
+            <h2>Що вивчаю та чим цікавлюся</h2>
+            <p>Вивчаю створення ефективного софту, поглиблюю знання в <strong>C++</strong> та <strong>дискретній математиці</strong>.</p>
+            <p>У командному проєкті відповідаю за координацію роботи та загальний темп виконання задач.</p>
+        </section>
 
-        <p>Зараз я вчуся створювати ефективний софт, вивчаю <strong>C++</strong> та <strong>дискретну математику</strong>.</p>
-
-        <p>У нашому командному проєкті на GitHub я виконую роль <strong>Team Lead</strong>.</p>
-
-        <br>
-
-        <a href="../index.html">← Назад на головну</a>
-    </div>
+        <section class="card profile-block profile-signature" aria-label="Фірмові фрази">
+            <h2>Фірмові фрази</h2>
+            <p>"Я лежу, а всі працюють."</p>
+            <p>"Чим менше роблю, тим більше отримую."</p>
+        </section>
+    </main>
 
     <script src="../script.js"></script>
 </body>

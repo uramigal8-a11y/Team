@@ -23,9 +23,14 @@
 
 ## Conventions
 
-- Profile pages must link stylesheet as `../style.css` and back link as `../index.html`.
-- Back-link label is `← Назад на головну`.
-- Wrap profile content in `.card` for consistent layout.
+- Profile pages must link stylesheet as `../style.css`.
+- Profile pages must include one `<main class="profile-main">` with 4 blocks in order:
+	`section.profile-block.profile-intro`, `section.profile-block.profile-study-place`,
+	`section.profile-block.profile-study-focus`, `section.profile-block.profile-signature`.
+- Intro block uses left photo + participant name section (`.profile-intro-media` and `.profile-intro-identity`).
+- Theme contract on each page: `body[data-home-theme]` and exactly one `.home-theme-toggle-button`.
+- Keep navbar width contract aligned with homepage shared max-width in `style.css`.
+- Wrap each profile block in `.card` for consistent layout.
 - Use `.university` for university/faculty paragraphs to keep visual consistency across profiles.
 
 ## New Member Checklist
@@ -33,5 +38,6 @@
 1. Add photo to `Foto/`.
 2. Create `FirstName_LastName/Name.html` from an existing profile pattern.
 3. Ensure profile page uses `../style.css`, `../Foto/<filename>`, `.card`, and `.university` where applicable.
-4. Add new `<li>` entry to `index.html` inside `.team-list` linking to the new profile.
-5. Verify navigation and layout in browser.
+4. Ensure profile page keeps `body[data-home-theme]`, one `.home-theme-toggle-button`, and `main.profile-main` with 4 blocks.
+5. Add new `<li>` entry to `index.html` inside `.team-list` linking to the new profile.
+6. Verify navigation and layout in browser.

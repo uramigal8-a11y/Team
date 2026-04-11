@@ -31,6 +31,7 @@ decisions:
 
 notes:
   - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
+  - "Profile pages follow one semantic 4-block contract inside main.profile-main and do not include mandatory back-link anchors."
 
 change_log:
   - date: "2026-04-11"
@@ -42,3 +43,6 @@ change_log:
   - date: "2026-04-11"
     type: minimal
     entry: "Marked profile-parity completion: profile navbars added and theme persistence generalized across homepage and profile pages."
+  - date: "2026-04-11"
+    type: minimal
+    entry: "Recorded participant block rework: profile nav width aligned to homepage contract, toggle moved to top-right on profile pages, and legacy back-link convention removed."

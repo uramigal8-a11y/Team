@@ -1,0 +1,515 @@
+﻿plan_id: adhoc-participant-pages-block-rework-2026-04-11
+objective: "On participant pages: match homepage navbar length, remove back link, move theme toggle to top-right, and restructure content into required profile blocks."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 6
+  risk_score: medium
+
+tldr: |
+  Revised replan preserves scope to shared stylesheet plus three participant pages and documentation touchpoints (source: user request; workspace tree).
+  Navbar parity is now defined as a measurable contract around the shared 1080px width guardrail, border-box sizing, and breakpoint behavior (source: style.css:78-87, style.css:327-330, style.css:572).
+  Theme-toggle mobile safety checks are now explicit at 320px and 375px widths with non-overlap, 44x44 minimum hit target, safe-area offsets, and z-index expectations (source: style.css:121-129, style.css:265-268, style.css:572-591).
+  Semantic profile structure is now a strict 4-block HTML contract with required classes and landmarks to avoid divergence across participant pages (source: user request).
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Participant-page navbar parity changes leak into homepage and reintroduce width/overflow regressions."
+      likelihood: medium
+      impact: high
+      mitigation: "Keep homepage rules under .home-page intact and require a specificity/conflict audit before completion (source: AGENTS.md; PRD decisions)."
+    - scenario: "Top-right toggle overlaps navbar links on narrow viewports, reducing usability."
+      likelihood: medium
+      impact: high
+      mitigation: "Add mandatory 320px/375px overlap checks, enforce minimum 44x44 target, and verify z-index ordering and safe-area offsets."
+    - scenario: "Profile HTML diverges between pages due to loosely defined section structure."
+      likelihood: medium
+      impact: medium
+      mitigation: "Use one strict landmark/class template for all participant pages and verify class presence and order on all three files."
+  assumptions:
+    - "Tech stack stays plain HTML5/CSS3/JavaScript with one shared stylesheet style.css (source: .github/copilot-instructions.md)."
+    - "Theme runtime contract remains body[data-home-theme] + one .home-theme-toggle-button per page (source: AGENTS.md; docs/PRD.yaml; script.js)."
+    - "Homepage scoping constraint under .home-page remains mandatory to avoid cross-page regressions (source: AGENTS.md; docs/PRD.yaml notes)."
+    - "Shared navbar baseline currently uses max-width 1080px and border-box; parity should align participant nav with this guardrail, not 440px profile-only narrowing (source: style.css:84, style.css:87, style.css:203)."
+
+implementation_specification:
+  code_structure: "Retain homepage-scoped design under .home-page. Build participant-page overrides in style.css via body:not(.home-page), define explicit reusable profile block selectors, and migrate each profile HTML file to one semantic landmark template."
+  affected_areas:
+    - "style.css"
+    - "Myhal_Yurii/Myhal.html"
+    - "Matvii_Kovalov/Kovalov.html"
+    - "Sviatoslav_Lylo/Sviatoslav.html"
+    - "AGENTS.md"
+    - "docs/PRD.yaml"
+  component_details:
+    - component: "Navbar parity contract"
+      responsibility: "Align participant navbar container behavior with homepage constraints through measurable token/sizing/breakpoint rules."
+      interfaces:
+        - "CSS token/contract: --home-layout-max-width = 1080px (or equivalent shared constant used by both .site-nav and .home-page .site-nav)"
+        - "CSS contract: box-sizing: border-box on nav container and nav links for homepage and participant contexts"
+        - "Breakpoint contract: explicit behavior for <=480px and >480px widths"
+    - component: "Toggle placement and touch-target contract"
+      responsibility: "Keep one theme toggle at top-right without overlap and with accessible hit area on participant pages."
+      interfaces:
+        - "CSS contract: body:not(.home-page) .home-theme-toggle-button"
+        - "Validation contract: min target 44x44, safe-area offset usage via env(safe-area-inset-*), z-index above content but not blocking nav interactions"
+    - component: "Semantic 4-block profile template"
+      responsibility: "Standardize participant content into one required landmark/class structure across all profile pages."
+      interfaces:
+        - "Landmark: <main class=\"profile-main\">"
+        - "Block 1: <section class=\"profile-block profile-intro\"> with .profile-intro-media and .profile-intro-identity"
+        - "Block 2: <section class=\"profile-block profile-study-place\">"
+        - "Block 3: <section class=\"profile-block profile-study-focus\">"
+        - "Block 4: <section class=\"profile-block profile-signature\">"
+    - component: "CSS specificity/conflict audit"
+      responsibility: "Prevent homepage regressions by validating selector scope/specificity interactions after new participant-page rules."
+      interfaces:
+        - "Audit checklist: selector scope boundaries (.home-page vs body:not(.home-page))"
+        - "Audit checklist: duplicate/overriding selector collisions affecting .site-nav/.home-theme-toggle-button"
+  dependencies:
+    - component: "Semantic 4-block profile template"
+      relationship: "Depends on style.css class hooks and spacing/typography definitions from CSS task."
+    - component: "Toggle placement and touch-target contract"
+      relationship: "Depends on script.js theme contract and shared toggle class usage."
+    - component: "CSS specificity/conflict audit"
+      relationship: "Depends on completed CSS and HTML changes to assess cross-page impact."
+  integration_points:
+    - "style.css: participant nav parity contract, toggle placement/hit-area rules, and profile semantic block styles"
+    - "Myhal_Yurii/Myhal.html: adopt strict semantic 4-block template, remove back-link"
+    - "Matvii_Kovalov/Kovalov.html: adopt strict semantic 4-block template, remove back-link"
+    - "Sviatoslav_Lylo/Sviatoslav.html: adopt strict semantic 4-block template, remove back-link"
+    - "AGENTS.md + docs/PRD.yaml: document updated participant convention (no back-link) and new layout contract"
+
+contracts:
+  - from_task: T1
+    to_task: T2
+    interface: "Participant CSS contract for profile block classes and required landmark hooks"
+    format: "Selector + semantic class contract"
+  - from_task: T1
+    to_task: T3
+    interface: "Participant CSS contract for profile block classes and required landmark hooks"
+    format: "Selector + semantic class contract"
+  - from_task: T1
+    to_task: T4
+    interface: "Measurable parity contract: shared max-width token 1080px, border-box on nav layers, <=480 breakpoint behavior, toggle top-right with 44x44 minimum and safe-area offsets"
+    format: "Measurable CSS checklist"
+  - from_task: T2
+    to_task: T4
+    interface: "Myhal/Kovalov pages migrated to strict 4-block landmark template without back-link"
+    format: "HTML semantic template contract"
+  - from_task: T3
+    to_task: T4
+    interface: "Sviatoslav page migrated to strict 4-block landmark template without back-link"
+    format: "HTML semantic template contract"
+  - from_task: T4
+    to_task: T5
+    interface: "Approved regression/audit report and finalized cross-page conventions for docs sync"
+    format: "Validation + audit summary"
+
+tasks:
+  - id: T1
+    title: "Implement measurable CSS contracts for participant navbar parity, toggle safety, and semantic block hooks"
+    description: |
+      Edit style.css to establish measurable participant-page contracts:
+      1) Navbar parity: align participant .site-nav container with homepage guardrail using a shared max-width contract (1080px), border-box sizing, and explicit <=480px behavior.
+      2) Toggle safety: keep participant toggle top-right with safe-area offsets, min 44x44 hit target, and z-index behavior that avoids nav overlap.
+      3) Semantic block hooks: add selectors needed by strict 4-block profile template.
+      Do not alter homepage visual identity rules beyond required shared-token extraction/synchronization.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-1", "AC-3", "AC-4", "AC-5", "AC-6"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: ["T2", "T3"]
+    context_files:
+      - path: style.css
+        description: "Shared nav/toggle/base rules and participant overrides"
+      - path: AGENTS.md
+        description: "Homepage scoping and theme-contract guardrails"
+      - path: docs/PRD.yaml
+        description: "Recorded box-sizing/max-width and theme decisions"
+    planning_pass: 2
+    planning_history:
+      - pass: 1
+        reason: "Initial CSS foundation task for navbar/toggle/block styling."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 1
+        estimated_lines: 120
+        focus_area: "participant-page shared CSS"
+        verification:
+          - "Visual navbar parity and toggle positioning checks"
+        acceptance_criteria:
+          - "Participant CSS overrides exist for nav/toggle/block layout"
+        failure_modes:
+          - scenario: "Broad selectors affect homepage"
+            likelihood: medium
+            impact: high
+            mitigation: "Scope under body:not(.home-page)"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+      - pass: 2
+        reason: "Refined with measurable parity and mobile safety constraints from findings."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 1
+        estimated_lines: 150
+        focus_area: "measurable nav/toggle contracts"
+        verification:
+          - "Shared 1080px max-width contract applies to homepage and participant nav containers"
+          - "Nav/toggle layers keep border-box sizing"
+          - "Participant toggle remains >=44x44"
+        acceptance_criteria:
+          - "Participant nav no longer constrained to 440px profile-only width"
+          - "Top-right toggle contract includes safe-area offsets and explicit z-index"
+          - "CSS hooks exist for strict profile semantic blocks"
+        failure_modes:
+          - scenario: "Token extraction changes homepage spacing unexpectedly"
+            likelihood: medium
+            impact: high
+            mitigation: "Constrain shared token usage to existing 1080px values and verify homepage unchanged"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+
+  - id: T2
+    title: "Migrate Myhal and Kovalov pages to strict semantic 4-block template"
+    description: |
+      Update Myhal_Yurii/Myhal.html and Matvii_Kovalov/Kovalov.html to one strict template:
+      - required landmark: main.profile-main,
+      - block 1: section.profile-block.profile-intro with .profile-intro-media + .profile-intro-identity,
+      - block 2: section.profile-block.profile-study-place,
+      - block 3: section.profile-block.profile-study-focus,
+      - block 4: section.profile-block.profile-signature.
+      Remove back-link anchors and keep one .home-theme-toggle-button and body[data-home-theme].
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-2", "AC-4", "AC-5"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: Myhal_Yurii/Myhal.html
+        description: "Profile page with legacy back-link and non-semantic single-card body"
+      - path: Matvii_Kovalov/Kovalov.html
+        description: "Profile page with legacy back-link and non-semantic single-card body"
+      - path: style.css
+        description: "Semantic block styles introduced in T1"
+    planning_pass: 2
+    planning_history:
+      - pass: 1
+        reason: "Batch two similar pages for efficient migration."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 2
+        estimated_lines: 170
+        focus_area: "profile markup normalization"
+        verification:
+          - "Back-link removed; four blocks present"
+        acceptance_criteria:
+          - "Canonical 4-block model applied to two pages"
+        failure_modes:
+          - scenario: "One page left in legacy structure"
+            likelihood: medium
+            impact: medium
+            mitigation: "Use one template"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+      - pass: 2
+        reason: "Hardened with strict class/landmark contract requirements."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 2
+        estimated_lines: 190
+        focus_area: "semantic contract enforcement"
+        verification:
+          - "main.profile-main exists in each file"
+          - "All four required section class combinations exist in required order"
+          - "No ../index.html back-link anchor remains in content area"
+        acceptance_criteria:
+          - "Both pages meet strict semantic template without class drift"
+          - "Theme runtime contract remains intact"
+        failure_modes:
+          - scenario: "Classes differ slightly across pages causing CSS mismatch"
+            likelihood: medium
+            impact: medium
+            mitigation: "Use exact class names from shared contract"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+
+  - id: T3
+    title: "Migrate Sviatoslav page to strict semantic 4-block template"
+    description: |
+      Update Sviatoslav_Lylo/Sviatoslav.html using the same required landmark and block classes as T2,
+      remove the back-link anchor, and preserve one .home-theme-toggle-button with body[data-home-theme].
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-2", "AC-4", "AC-5"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: Sviatoslav_Lylo/Sviatoslav.html
+        description: "Profile page with legacy compact structure and back-link"
+      - path: style.css
+        description: "Semantic block styles introduced in T1"
+    planning_pass: 2
+    planning_history:
+      - pass: 1
+        reason: "Isolated single-page migration to keep task size small."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 1
+        estimated_lines: 110
+        focus_area: "single-page markup normalization"
+        verification:
+          - "Back-link removed and four blocks present"
+        acceptance_criteria:
+          - "Canonical 4-block model applied"
+        failure_modes:
+          - scenario: "UX divergence from other profiles"
+            likelihood: medium
+            impact: medium
+            mitigation: "Reuse template from T2"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+      - pass: 2
+        reason: "Aligned with strict semantic template and class parity checks."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 1
+        estimated_lines: 120
+        focus_area: "template parity"
+        verification:
+          - "main.profile-main present"
+          - "All required section classes present in canonical order"
+          - "No back-link anchor remains"
+        acceptance_criteria:
+          - "Sviatoslav page is semantically equivalent to template used in T2"
+          - "Theme runtime contract preserved"
+        failure_modes:
+          - scenario: "Missing one required class causes style hole"
+            likelihood: medium
+            impact: medium
+            mitigation: "Run class checklist before task completion"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+
+  - id: T4
+    title: "Run CSS specificity/conflict audit and mobile non-overlap validation"
+    description: |
+      Perform a combined non-regression gate before docs updates:
+      1) CSS specificity/conflict audit for .site-nav and .home-theme-toggle-button rules to ensure homepage selectors remain isolated under .home-page.
+      2) Manual viewport validation at 320px and 375px (plus 768/1280 reference) for participant pages and homepage:
+         - toggle does not overlap or block nav links,
+         - toggle hit target remains >=44x44,
+         - safe-area offsets apply,
+         - z-index layering preserves clickable nav.
+      Record pass/fail checklist with residual risks.
+    wave: 3
+    agent: gem-browser-tester
+    prototype: false
+    covers: ["AC-1", "AC-2", "AC-3", "AC-4", "AC-5", "AC-6"]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies:
+      - T1
+      - T2
+      - T3
+    conflicts_with: []
+    context_files:
+      - path: style.css
+        description: "Primary target for specificity and overlap audit"
+      - path: index.html
+        description: "Homepage regression reference"
+      - path: Myhal_Yurii/Myhal.html
+        description: "Participant validation target"
+      - path: Matvii_Kovalov/Kovalov.html
+        description: "Participant validation target"
+      - path: Sviatoslav_Lylo/Sviatoslav.html
+        description: "Participant validation target"
+    planning_pass: 2
+    planning_history:
+      - pass: 1
+        reason: "Initial manual behavior validation task."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 3
+        estimated_lines: 30
+        focus_area: "manual verification"
+        verification:
+          - "Desktop/mobile checks and theme persistence"
+        acceptance_criteria:
+          - "Requested UI behavior met without homepage regression"
+        failure_modes:
+          - scenario: "Subjective parity misses edge cases"
+            likelihood: medium
+            impact: medium
+            mitigation: "Use explicit width checklist"
+        validation_matrix:
+          - scenario: "Basic profile visual checks"
+            steps:
+              - "Open each participant page"
+              - "Confirm nav/toggle placement"
+            expected_result: "Parity appears acceptable"
+      - pass: 2
+        reason: "Expanded to explicit specificity audit and measurable mobile checks from findings."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 3
+        estimated_lines: 70
+        focus_area: "audit + mobile overlap validation"
+        verification:
+          - "No selector conflict allows participant overrides to change homepage nav/toggle rules"
+          - "320px and 375px checks pass on all participant pages"
+          - "Toggle target is >=44x44 and remains clickable"
+          - "Safe-area offset and z-index behavior pass explicit checks"
+        acceptance_criteria:
+          - "CSS specificity/conflict checklist has no unresolved high-risk items"
+          - "No toggle/nav overlap at 320px and 375px"
+          - "Homepage nav/toggle still match prior behavior"
+        failure_modes:
+          - scenario: "Audit misses a late selector override because of source-order complexity"
+            likelihood: medium
+            impact: high
+            mitigation: "Inspect computed styles for nav/toggle in homepage and one participant page at each target width"
+        validation_matrix:
+          - scenario: "Viewport 320 participant non-overlap"
+            steps:
+              - "Set viewport width to 320"
+              - "Open each participant page"
+              - "Check toggle and nav clickable areas"
+            expected_result: "No overlap; nav links and toggle both interactable"
+          - scenario: "Viewport 375 participant non-overlap"
+            steps:
+              - "Set viewport width to 375"
+              - "Open each participant page"
+              - "Confirm top-right toggle and nav spacing"
+            expected_result: "No overlap; hit target >=44x44"
+          - scenario: "Homepage regression guard"
+            steps:
+              - "Open homepage at 375 and 1280 widths"
+              - "Compare nav/toggle placement and behavior"
+            expected_result: "No visual/interaction regression on homepage"
+
+  - id: T5
+    title: "Update conventions/docs for semantic profile contract and back-link removal"
+    description: |
+      Update documentation targets explicitly:
+      - AGENTS.md: add participant-page semantic template contract (required classes/landmarks), navbar parity/toggle mobile audit expectations, and no-back-link convention.
+      - docs/PRD.yaml: append decision/change-log entry reflecting convention change that participant pages remove the back-link and rely on shared navbar navigation.
+      Ensure wording aligns with implemented contracts and does not conflict with older guidance.
+    wave: 4
+    agent: gem-documentation-writer
+    prototype: false
+    covers: ["AC-4", "AC-5", "AC-6"]
+    priority: low
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies:
+      - T4
+    conflicts_with: []
+    context_files:
+      - path: AGENTS.md
+        description: "Repository conventions and notable findings"
+      - path: docs/PRD.yaml
+        description: "Project decisions and change log"
+      - path: docs/plan/adhoc-participant-pages-block-rework-2026-04-11/plan.yaml
+        description: "Source of finalized implementation contracts"
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Participant semantic 4-block template with required classes/landmarks"
+      - "Navbar parity and toggle mobile safety validation expectations"
+      - "Convention update: participant pages no longer include back-link anchor"
+      - "Theme runtime contract preservation"
+    planning_pass: 2
+    planning_history:
+      - pass: 1
+        reason: "Initial doc-sync task after implementation and validation."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 2
+        estimated_lines: 35
+        focus_area: "documentation parity"
+        verification:
+          - "Theme contract and back-link removal documented"
+        acceptance_criteria:
+          - "Docs do not conflict with new profile structure"
+        failure_modes:
+          - scenario: "Older convention text survives in docs"
+            likelihood: low
+            impact: medium
+            mitigation: "Update PRD and AGENTS in same task"
+        task_type: update
+        audience: developers
+        coverage_matrix:
+          - "navigation/toggle/layout contract updates"
+      - pass: 2
+        reason: "Clarified explicit doc targets and convention shift per request."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 2
+        estimated_lines: 55
+        focus_area: "targeted convention updates"
+        verification:
+          - "AGENTS.md includes strict template and audit expectations"
+          - "PRD change_log records no-back-link convention"
+        acceptance_criteria:
+          - "Contributor guidance fully aligns with implemented participant behavior"
+          - "No remaining doc text requires back-link on participant pages"
+        failure_modes:
+          - scenario: "Conventions become ambiguous between old and new navigation expectations"
+            likelihood: low
+            impact: medium
+            mitigation: "State deprecation/removal explicitly in PRD note and AGENTS guidance"
+        task_type: update
+        audience: developers
+        coverage_matrix:
+          - "semantic-template and navigation convention updates"
