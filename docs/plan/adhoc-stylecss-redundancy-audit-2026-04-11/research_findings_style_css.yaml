@@ -1,0 +1,245 @@
+plan_id: adhoc-stylecss-redundancy-audit-2026-04-11
+objective: "Audit style.css for redundant/duplicated CSS removable without behavior change"
+focus_area: style.css
+created_at: "2026-04-11"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - Confirmed one same-rule duplicate declaration: `.home-page .home-shell` declares `width` twice, with the first overridden.
+  - Confirmed repeated selector blocks where later declarations fully replace earlier declarations (`.home-page .site-nav` margin handling; `.home-page .home-cells` gap/display handling).
+  - Confirmed additional duplicate declarations inside repeated selector blocks (`.home-page .site-nav` width/max-width repeated with same computed values).
+  - Theme token and scoped-homepage cascade areas are sensitive and should be excluded from aggressive dedup to avoid dark-theme and cross-page regressions.
+
+research_metadata:
+  methodology: "Hybrid retrieval (`semantic_search` + `grep_search`) and targeted file reads (`read_file`) with line-number verification via terminal output of `style.css`."
+  scope: "Focused audit of `style.css` redundancy, with markup verification in `index.html` and convention constraints from `AGENTS.md` and `docs/PRD.yaml`."
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: style.css
+  path: d:/MyFiles/Team/style.css
+  purpose: "Shared stylesheet for homepage and profile pages, including homepage theme/cascade overrides."
+  key_elements:
+  - element: ".home-page .home-shell"
+    type: pattern
+    location: "style.css:157-166"
+    description: "Contains duplicate `width` declarations in same rule (`min(1080px,100%)` then `100%`)."
+  - element: ".home-page .site-nav"
+    type: pattern
+    location: "style.css:183-185 and 259-272"
+    description: "Selector appears in two separate blocks; earlier margin declaration is superseded by later shorthand margin."
+  - element: ".home-page .home-cells"
+    type: pattern
+    location: "style.css:202-215 and 386-390"
+    description: "Selector appears twice; later block overrides earlier `gap` and repeats `display: grid` with identical computed effect."
+  language: css
+  lines: 462
+
+- file: index.html
+  path: d:/MyFiles/Team/index.html
+  purpose: "Current homepage markup used to validate whether audited selectors are active and how cascade applies."
+  key_elements:
+  - element: "class=\"site-nav\""
+    type: pattern
+    location: "index.html:14"
+    description: "Confirms `.home-page .site-nav` is active on homepage."
+  - element: "class=\"home-shell\""
+    type: pattern
+    location: "index.html:20"
+    description: "Confirms `.home-page .home-shell` is active."
+  - element: "class=\"home-cells\""
+    type: pattern
+    location: "index.html:28"
+    description: "Confirms `.home-page .home-cells` is active."
+  language: html
+  lines: 54
+
+- file: AGENTS.md
+  path: d:/MyFiles/Team/AGENTS.md
+  purpose: "Repository conventions and known cascade constraints relevant to safe CSS simplification."
+  key_elements:
+  - element: "Homepage scope requirement"
+    type: pattern
+    location: "AGENTS.md:3"
+    description: "Homepage styles are intentionally scoped under `.home-page` to avoid profile regressions."
+  - element: "Navbar overflow/max-width constraint"
+    type: pattern
+    location: "AGENTS.md:4"
+    description: "Shared max-width and box-sizing decisions for navbar layout stability."
+  language: markdown
+  lines: 5
+
+- file: PRD.yaml
+  path: d:/MyFiles/Team/docs/PRD.yaml
+  purpose: "Project scope and prior homepage layout decisions affecting safe modifications."
+  key_elements:
+  - element: "layout-fix-center-navbar-bigmen"
+    type: pattern
+    location: "docs/PRD.yaml:13-16"
+    description: "Documents completed navbar overflow and width alignment fixes that simplification must preserve."
+  language: yaml
+  lines: 26
+
+patterns_found:
+- category: structure
+  pattern: "Duplicate declaration in same rule (overridden by later declaration)"
+  description: "Within one ruleset, later declaration overrides earlier declaration of the same property."
+  examples:
+  - file: style.css
+    location: "style.css:158 and style.css:160"
+    snippet: "`width: min(1080px, 100%);` is overridden by later `width: 100%;` in `.home-page .home-shell`."
+  prevalence: occasional
+
+- category: structure
+  pattern: "Repeated selector block with shorthand overriding prior longhand-equivalent outcome"
+  description: "Same selector appears in multiple blocks; later block sets a shorthand that fully replaces prior declaration effect."
+  examples:
+  - file: style.css
+    location: "style.css:183-185 and style.css:266"
+    snippet: "Earlier `.home-page .site-nav { margin-bottom: 20px; }` is redundant because later `.home-page .site-nav { margin: 0 auto 20px; }` already sets bottom margin to 20px."
+  prevalence: occasional
+
+- category: structure
+  pattern: "Repeated selector block with identical declarations"
+  description: "Property/value pairs are restated later with same computed value, adding no behavioral difference."
+  examples:
+  - file: style.css
+    location: "style.css:178-179 and style.css:264-265"
+    snippet: "`.home-page .site-nav` repeats `width: 100%` and `max-width: 1080px` with identical values."
+  - file: style.css
+    location: "style.css:203 and style.css:387"
+    snippet: "`.home-page .home-cells` repeats `display: grid` with same value."
+  prevalence: occasional
+
+- category: structure
+  pattern: "Earlier declaration overridden by later declaration on same selector"
+  description: "Later block for same selector changes a property value, making earlier value ineffective."
+  examples:
+  - file: style.css
+    location: "style.css:204 and style.css:389"
+    snippet: "`.home-page .home-cells` uses `gap: 24px` earlier, then `gap: 14px` later; effective value is 14px."
+  prevalence: occasional
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Global base styles"
+    responsibility: "Provide default typography/layout for all pages."
+    location: "style.css:1-75"
+    relationship_to_domain: "domain depends on this"
+  - component: "Homepage-scoped theme/layout styles"
+    responsibility: "Override global defaults and control theme, shell, nav, cards, responsive behavior."
+    location: "style.css:77-462"
+    relationship_to_domain: "domain depends on this"
+  interfaces_used_by_domain:
+  - interface: "HTML class hooks"
+    location: "index.html:8-46"
+    usage_pattern: "Selectors target `.home-page`-scoped class names for homepage-only behavior."
+  data_flow_involving_domain: "`body.home-page` activates homepage token set and rule cascade; media queries and `[data-home-theme='dark']` swap effective values at runtime."
+  key_relationships_to_domain:
+  - from: "index.html body.home-page"
+    to: "style.css .home-page* rules"
+    relationship: "composes"
+  - from: "script.js (theme toggle behavior)"
+    to: "style.css .home-page[data-home-theme='dark']"
+    relationship: "uses domain outputs"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - CSS3
+  - HTML5
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain: []
+
+related_conventions:
+  naming_patterns_in_domain: "Homepage styling consistently namespaced with `.home-page` prefix per project convention."
+  structure_of_domain: "Global defaults first, then homepage-scoped tokens/components, then responsive/reduced-motion overrides."
+  error_handling_in_domain: "Not applicable in static CSS; safety relies on cascade order and selector specificity."
+  testing_in_domain: "Manual browser verification per project notes; no automated CSS tests."
+  documentation_in_domain: "Comments in Ukrainian and PRD/AGENTS notes define scoping and navbar constraints."
+
+related_dependencies:
+  internal:
+  - component: "index.html class structure"
+    relationship_to_domain: "Selectors rely on current class names and hierarchy."
+    direction: bidirectional
+  - component: "script.js theme toggle attribute"
+    relationship_to_domain: "Dark theme CSS depends on `data-home-theme` attribute changes."
+    direction: inbound
+  external: []
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "Not applicable"
+  authorization_patterns_in_domain: "Not applicable"
+  data_validation_in_domain: "Not applicable"
+
+testing_patterns:
+  framework: "none"
+  coverage_areas:
+  - "Desktop/mobile rendering"
+  - "Theme toggle visual parity"
+  test_organization: "Manual visual checks"
+  mock_patterns: []
+
+open_questions:
+- question: "Should currently unused `.home-team-list*` rules be treated as planned fallback styles or removable dead CSS in this pass?"
+  context: "`index.html` has no `.home-team-list` nodes, but stylesheet keeps a complete block for that selector family."
+  type: nice_to_know
+  affects: ["style-css-simplification-pass"]
+
+gaps:
+- area: "Runtime interaction verification"
+  description: "No interactive browser run was performed in this audit; findings are static-cascade verified only."
+  impact: research_blocker
+  affects: ["style-css-simplification-pass"]
+
+safe_simplification_candidates:
+- selector: ".home-page .home-shell"
+  lines: "style.css:158"
+  action: "Remove `width: min(1080px, 100%);`"
+  reason: "Immediately overridden by `width: 100%` in same rule (style.css:160)."
+
+- selector: ".home-page .site-nav"
+  lines: "style.css:183-185"
+  action: "Remove entire early block containing only `margin-bottom: 20px;`"
+  reason: "Later same-specificity block sets `margin: 0 auto 20px;` (style.css:266), preserving bottom margin and adding horizontal centering."
+
+- selector: ".home-page .site-nav"
+  lines: "style.css:264-265"
+  action: "Remove `width: 100%` and `max-width: 1080px` from later block OR remove same properties from earlier grouped block for `.site-nav`"
+  reason: "Properties are duplicates with identical computed values due to prior declaration at style.css:178-179."
+
+- selector: ".home-page .home-cells"
+  lines: "style.css:387"
+  action: "Remove `display: grid` from later block"
+  reason: "Already declared with same value in earlier block at style.css:203."
+
+- selector: ".home-page .home-cells"
+  lines: "style.css:204"
+  action: "Remove early `gap: 24px`"
+  reason: "Overridden by later `gap: 14px` at style.css:389; effective gap remains 14px."
+
+risky_sections_to_leave_untouched:
+- selector_group: ".home-page and .home-page[data-home-theme='dark'] token blocks"
+  lines: "style.css:78-111 and style.css:228-250"
+  risk: "Theme token parity and navbar token placement are explicitly constrained by repository notes; dedup across light/dark may break toggle behavior or navbar styling scope."
+
+- selector_group: ".home-page .home-hero, .home-page .home-section, .home-page .site-nav shared layout block"
+  lines: "style.css:174-181"
+  risk: "Part of documented navbar overflow/max-width fix; moving/removing declarations requires full responsive regression check."
+
+- selector_group: "Responsive overrides"
+  lines: "style.css:416-462"
+  risk: "Media-query-specific declarations intentionally diverge from base values; apparent duplication can be viewport-conditional and should remain unless tested on mobile and reduced-motion modes."
+
+minimal_edit_strategy:
+  scope: "style.css only"
+  steps:
+  - "Apply only the five safe_simplification_candidates listed above (pure duplicate/override removals)."
+  - "Do not refactor selector structure, reorder rules, or collapse token blocks in this pass."
+  - "After edits, verify homepage desktop + <=480px + dark theme toggle to confirm no visual deltas in nav width, spacing, and cards."
