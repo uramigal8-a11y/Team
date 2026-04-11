@@ -25,8 +25,10 @@
 
 - Profile pages must link stylesheet as `../style.css`.
 - Profile pages must include one `<main class="profile-main">` with 4 blocks in order:
-	`section.profile-block.profile-intro`, `section.profile-block.profile-study-place`,
-	`section.profile-block.profile-study-focus`, `section.profile-block.profile-signature`.
+  - `section.profile-block.profile-intro`
+  - `section.profile-block.profile-study-place`
+  - `section.profile-block.profile-study-focus`
+  - `section.profile-block.profile-signature`
 - Intro block uses left photo + participant name section (`.profile-intro-media` and `.profile-intro-identity`).
 - Theme contract on each page: `body[data-home-theme]` and exactly one `.home-theme-toggle-button`.
 - Keep navbar width contract aligned with homepage shared max-width in `style.css`.
