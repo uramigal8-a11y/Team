@@ -1,18 +1,12 @@
 ﻿/* Спільні темні/світлі токени для всіх сторінок */
 body[data-home-theme] {
     --home-bg: #f3f7fb;
-    --home-surface: #ffffff;
-    --home-surface-soft: #f2f7fc;
     --home-text: #163148;
     --home-muted: #4f6274;
     --home-border: #cfe0ee;
     --home-focus: #0e639c;
     --home-card-bg: linear-gradient(135deg, #ffffff 0%, #f3f8fd 100%);
-    --home-link-hover-bg: #e6f1fb;
-    --home-link-hover-border: #8bb6d9;
-    --home-cell-bg: #ffffff;
     --home-cell-title: #12304a;
-    --home-cell-text: #294762;
     --home-page-glow-1: rgba(160, 202, 235, 0.52);
     --home-page-glow-2: rgba(193, 223, 245, 0.56);
     --home-shadow: 0 14px 34px rgba(27, 70, 102, 0.13);
@@ -25,18 +19,12 @@ body[data-home-theme] {
 
 body[data-home-theme='dark'] {
     --home-bg: #0a0a0a;
-    --home-surface: #141414;
-    --home-surface-soft: #1d1d1d;
     --home-text: #f5f5f5;
     --home-muted: #cccccc;
     --home-border: #3a3a3a;
     --home-focus: #ffffff;
     --home-card-bg: linear-gradient(135deg, #131313 0%, #0f0f0f 100%);
-    --home-link-hover-bg: #252525;
-    --home-link-hover-border: #585858;
-    --home-cell-bg: #1a1a1a;
     --home-cell-title: #f5f5f5;
-    --home-cell-text: #cccccc;
     --home-page-glow-1: rgba(27, 27, 27, 0.9);
     --home-page-glow-2: rgba(32, 32, 32, 0.9);
     --home-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
@@ -118,15 +106,6 @@ p {
     margin: 10px 0;
 }
 
-a {
-    color: #ff0033;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-    a:hover {
-        text-decoration: underline;
-    }
 /* Спільний шар стилів для навігації і перемикача теми на всіх сторінках */
 .site-nav {
     display: flex;
@@ -163,6 +142,7 @@ a {
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
+    font-weight: bold;
     color: var(--home-text);
     text-decoration: none;
     transition: background 0.2s ease, border-color 0.2s ease;
@@ -367,7 +347,7 @@ body:not(.home-page) .university {
     body:not(.home-page) {
         padding:
             calc(72px + env(safe-area-inset-top, 0px))
-            calc(84px + env(safe-area-inset-right, 0px))
+            calc(12px + env(safe-area-inset-right, 0px))
             calc(20px + env(safe-area-inset-bottom, 0px))
             calc(12px + env(safe-area-inset-left, 0px));
     }

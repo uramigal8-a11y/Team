@@ -11,7 +11,7 @@ features:
   - id: homepage-team-description-cells
     status: completed
     completed_on: "2026-04-11"
-    scope: "Added descriptive team cells on homepage, including one placeholder cell"
+    scope: "Added descriptive team cells on homepage with filled content in all cells"
 
   - id: layout-fix-center-navbar-bigmen
     status: completed

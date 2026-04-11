@@ -7,7 +7,7 @@
 - [x] Shared nav/theme layer documented as page-agnostic while preserving homepage-only visual scoping under `.home-page`.
 - [x] Profile pages include navbar links to homepage and the other two members.
 - [x] Theme persistence contract documented: storage key `home-theme`, hooks `body[data-home-theme]` + `.home-theme-toggle-button`.
-- [x] Project conventions preserved on profiles (`../style.css`, `../index.html`, back-link label `← Назад на головну`, `.card`/`.university` usage).
+- [x] Project conventions preserved on profiles (`../style.css`, `.card`/`.university` usage); profile content back-link is not mandatory under the current contract.
 
 ## Validation Outcomes
 - Source validation: passed (required hooks, routes, and shared script/style wiring present across index + all profile pages).

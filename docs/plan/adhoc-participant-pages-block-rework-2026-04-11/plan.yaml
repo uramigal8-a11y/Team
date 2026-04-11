@@ -2,7 +2,7 @@
 objective: "On participant pages: match homepage navbar length, remove back link, move theme toggle to top-right, and restructure content into required profile blocks."
 created_at: "2026-04-11"
 created_by: gem-planner
-status: pending
+status: completed
 research_confidence: high
 
 plan_metrics:
@@ -127,7 +127,7 @@ tasks:
     prototype: false
     covers: ["AC-1", "AC-3", "AC-4", "AC-5", "AC-6"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -204,7 +204,7 @@ tasks:
     prototype: false
     covers: ["AC-2", "AC-4", "AC-5"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -276,7 +276,7 @@ tasks:
     prototype: false
     covers: ["AC-2", "AC-4", "AC-5"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -352,7 +352,7 @@ tasks:
     prototype: false
     covers: ["AC-1", "AC-2", "AC-3", "AC-4", "AC-5", "AC-6"]
     priority: medium
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -448,7 +448,7 @@ tasks:
     prototype: false
     covers: ["AC-4", "AC-5", "AC-6"]
     priority: low
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
