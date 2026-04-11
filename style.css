@@ -74,27 +74,83 @@ hr {
     margin: 20px 0;
 }
 
-/* Головна сторінка: ізольований чорно-білий стиль */
+/* Головна сторінка: перемикач світлої/темної теми через JavaScript */
 .home-page {
-    --home-bg: #0a0a0a;
-    --home-surface: #141414;
-    --home-surface-soft: #1d1d1d;
-    --home-text: #f5f5f5;
-    --home-muted: #cccccc;
-    --home-border: #3a3a3a;
-    --home-focus: #ffffff;
-    background:
-        radial-gradient(circle at 15% 10%, #1b1b1b 0%, rgba(27, 27, 27, 0) 40%),
-        radial-gradient(circle at 85% 80%, #202020 0%, rgba(32, 32, 32, 0) 45%),
-        #0a0a0a;
-    color: var(--home-text);
+    background-color: #f3f7fb;
     font-family: "Segoe UI", "Trebuchet MS", sans-serif;
     text-align: left;
     margin: 0;
-    padding: 28px 20px;
+    padding:
+        calc(28px + env(safe-area-inset-top, 0px))
+        calc(20px + env(safe-area-inset-right, 0px))
+        calc(28px + env(safe-area-inset-bottom, 0px))
+        calc(20px + env(safe-area-inset-left, 0px));
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.home-page .home-theme-toggle-button {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    min-width: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    border: 1px solid #bfd0e0;
+    background: rgba(255, 255, 255, 0.95);
+    color: #153047;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(20, 52, 84, 0.14);
+}
+
+.home-page .home-theme-toggle-button:focus-visible {
+    outline: 3px solid #0e639c;
+    outline-offset: 3px;
+}
+
+.home-page .home-theme-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.home-page .home-theme-icon-moon {
+    display: none;
+}
+
+.home-page[data-home-theme='dark'] .home-theme-icon-sun {
+    display: none;
+}
+
+.home-page[data-home-theme='dark'] .home-theme-icon-moon {
+    display: inline;
 }
 
 .home-page .home-shell {
+    --home-bg: #f3f7fb;
+    --home-surface: #ffffff;
+    --home-surface-soft: #f2f7fc;
+    --home-text: #163148;
+    --home-muted: #4f6274;
+    --home-border: #cfe0ee;
+    --home-focus: #0e639c;
+    --home-card-bg: linear-gradient(135deg, #ffffff 0%, #f3f8fd 100%);
+    --home-link-hover-bg: #e6f1fb;
+    --home-link-hover-border: #8bb6d9;
+    --home-cell-bg: #ffffff;
+    --home-cell-title: #12304a;
+    --home-cell-text: #294762;
+    --home-page-glow-1: rgba(160, 202, 235, 0.52);
+    --home-page-glow-2: rgba(193, 223, 245, 0.56);
+    --home-shadow: 0 14px 34px rgba(27, 70, 102, 0.13);
+    width: min(1080px, 100%);
     box-sizing: border-box;
     width: 100%;
     max-width: 1080px;
@@ -140,6 +196,54 @@ hr {
 
 .home-page .home-cells {
     display: grid;
+    gap: 24px;
+    color: var(--home-text);
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+    border-radius: 24px;
+    padding:
+        calc(54px + env(safe-area-inset-top, 0px))
+        calc(28px + env(safe-area-inset-right, 0px))
+        calc(28px + env(safe-area-inset-bottom, 0px))
+        calc(28px + env(safe-area-inset-left, 0px));
+}
+
+.home-page .home-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 12% 8%, var(--home-page-glow-1) 0%, rgba(160, 202, 235, 0) 42%),
+        radial-gradient(circle at 88% 84%, var(--home-page-glow-2) 0%, rgba(193, 223, 245, 0) 47%),
+        var(--home-bg);
+}
+
+.home-page[data-home-theme='dark'] .home-shell {
+    --home-bg: #0a0a0a;
+    --home-surface: #141414;
+    --home-surface-soft: #1d1d1d;
+    --home-text: #f5f5f5;
+    --home-muted: #cccccc;
+    --home-border: #3a3a3a;
+    --home-focus: #ffffff;
+    --home-card-bg: linear-gradient(135deg, #131313 0%, #0f0f0f 100%);
+    --home-link-hover-bg: #252525;
+    --home-link-hover-border: #585858;
+    --home-cell-bg: #1a1a1a;
+    --home-cell-title: #f5f5f5;
+    --home-cell-text: #cccccc;
+    --home-page-glow-1: rgba(27, 27, 27, 0.9);
+    --home-page-glow-2: rgba(32, 32, 32, 0.9);
+    --home-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+}
+
+.home-page[data-home-theme='dark'] .home-theme-toggle-button {
+    border-color: #4a4a4a;
+    background: rgba(19, 19, 19, 0.96);
+    color: #f5f5f5;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
     grid-template-columns: repeat(3, minmax(220px, 1fr));
     gap: 14px;
 }
@@ -190,19 +294,11 @@ hr {
     box-sizing: border-box;
     max-width: 1080px;
     width: 100%;
-    background: linear-gradient(135deg, #131313 0%, #0f0f0f 100%);
+    background: var(--home-card-bg);
     border: 1px solid var(--home-border);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    box-shadow: var(--home-shadow);
     border-radius: 18px;
     padding: 28px;
-}
-
-.home-page .home-kicker {
-    margin: 0 0 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 12px;
-    color: var(--home-muted);
 }
 
 .home-page h1,
@@ -273,8 +369,8 @@ hr {
 }
 
 .home-page .home-team-list a:hover {
-    background: #252525;
-    border-color: #585858;
+    background: var(--home-link-hover-bg);
+    border-color: var(--home-link-hover-border);
     text-decoration: none;
 }
 
@@ -285,33 +381,22 @@ hr {
 }
 
 .home-page .home-cell {
-    background: #f6f6f6;
-    color: #121212;
-    border: 1px solid #d9d9d9;
+    background: var(--home-cell-bg);
+    border: 1px solid var(--home-border);
     border-radius: 14px;
     padding: 18px;
     min-height: 100px;
 }
 
 .home-page .home-cell h3 {
-    color: #0f0f0f;
+    color: var(--home-cell-title);
     margin: 0 0 10px;
     font-size: 20px;
 }
 
 .home-page .home-cell p {
-    color: #2c2c2c;
+    color: var(--home-cell-text);
     margin: 0;
-}
-
-.home-page .home-cell-placeholder {
-    background: repeating-linear-gradient(
-        -45deg,
-        #ececec,
-        #ececec 10px,
-        #e0e0e0 10px,
-        #e0e0e0 20px
-    );
 }
 
 .home-page a:focus-visible {
@@ -319,9 +404,42 @@ hr {
     outline-offset: 3px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .home-page .team-list li,
+    .home-page .home-team-list a {
+        transition: none;
+    }
+
+    .home-page .team-list li:hover,
+    .home-page .home-team-list li:hover {
+        transform: none;
+    }
+}
+
 @media (max-width: 480px) {
     .home-page {
-        padding: 16px 12px;
+        padding:
+            calc(16px + env(safe-area-inset-top, 0px))
+            calc(12px + env(safe-area-inset-right, 0px))
+            calc(16px + env(safe-area-inset-bottom, 0px))
+            calc(12px + env(safe-area-inset-left, 0px));
+    }
+
+    .home-page .home-theme-toggle-button {
+        top: calc(8px + env(safe-area-inset-top, 0px));
+        right: calc(8px + env(safe-area-inset-right, 0px));
+        padding: 9px 12px;
+        gap: 6px;
+        font-size: 13px;
+    }
+
+    .home-page .home-shell {
+        padding:
+            calc(52px + env(safe-area-inset-top, 0px))
+            calc(14px + env(safe-area-inset-right, 0px))
+            calc(14px + env(safe-area-inset-bottom, 0px))
+            calc(14px + env(safe-area-inset-left, 0px));
+        border-radius: 16px;
     }
 
     .home-page .card,

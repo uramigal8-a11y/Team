@@ -2,7 +2,7 @@
 
 ## Code Style
 
-- Stack: plain HTML5 + CSS3 only. No JavaScript, frameworks, build system, or package manager.
+- Stack: plain HTML5 + CSS3 + JavaScript only. frameworks, build system, or package manager.
 - Language: user-visible text and CSS comments are Ukrainian; keep `lang="uk"` on HTML pages.
 - Encoding: UTF-8. If a file already contains a UTF-8 BOM, preserve it.
 - Keep one shared stylesheet at `style.css`; do not create per-page CSS files.

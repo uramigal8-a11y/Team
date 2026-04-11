@@ -1,0 +1,383 @@
+plan_id: adhoc-theme-toggle-2026-04-11
+objective: "Inspect current homepage theme-toggle markup/CSS and map safe migration path from CSS-only toggle to JS-controlled top-right button."
+focus_area: homepage_theme_toggle_inventory
+created_at: "2026-04-11"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - Current theme behavior is CSS-only and driven by a checkbox + label block in homepage markup, plus `:checked` sibling selectors in shared CSS.
+  - Theme variables are declared on `.home-page .home-shell` and switched by `.home-theme-toggle-input:checked ~ .home-shell`; icon/text swap is also CSS-driven via `:checked + label` selectors.
+  - Homepage safety depends on keeping selectors under `.home-page`; this aligns with existing repo guidance that homepage styles must remain scoped.
+  - There is no JS file or script tag in the workspace, so any JS toggle integration is a new behavior surface.
+  - Exact removable CSS-only blocks and minimal keep-structure for JS migration are enumerated below with file/line references.
+
+research_metadata:
+  methodology: "Hybrid retrieval: direct reads (`read_file`), exact regex scans (`grep_search`), semantic discovery (`semantic_search`), and line-number verification via PowerShell content inspection."
+  scope: "Homepage theme toggle implementation in `index.html` and `style.css`, plus repository constraints in `AGENTS.md`, `docs/PRD.yaml`, and `docs/plan/adhoc-theme-toggle-2026-04-11/plan.yaml`."
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: AGENTS.md
+  path: d:/MyFiles/Team/AGENTS.md
+  purpose: "Repository rule capture for homepage-scoping safety."
+  key_elements:
+  - element: "Homepage scoping note"
+    type: pattern
+    location: AGENTS.md:3
+    description: "Explicitly states homepage styles are scoped under `.home-page` to avoid regressions in profile pages."
+  language: Markdown
+  lines: 3
+
+- file: index.html
+  path: d:/MyFiles/Team/index.html
+  purpose: "Homepage markup including theme control element structure."
+  key_elements:
+  - element: "input#home-theme-toggle.home-theme-toggle-input"
+    type: pattern
+    location: index.html:10
+    description: "Checkbox state source for CSS-only theme switching."
+  - element: "label.home-theme-toggle-label"
+    type: pattern
+    location: index.html:11
+    description: "Visual toggle control in top-right area."
+  - element: "home-theme-icon-sun / home-theme-icon-moon"
+    type: pattern
+    location: index.html:12-13
+    description: "Icon pair currently swapped by CSS based on checkbox state."
+  - element: "home-theme-toggle-text-light / home-theme-toggle-text-dark"
+    type: pattern
+    location: index.html:14-15
+    description: "State-specific text currently swapped by CSS."
+  - element: "main.home-shell"
+    type: pattern
+    location: index.html:17
+    description: "Theme variable host targeted by sibling selector from checkbox."
+  language: HTML
+  lines: 59
+
+- file: style.css
+  path: d:/MyFiles/Team/style.css
+  purpose: "Shared stylesheet containing homepage-scoped theme rules and CSS-only toggle selectors."
+  key_elements:
+  - element: ".home-page .home-theme-toggle-input"
+    type: pattern
+    location: style.css:92-100
+    description: "Visually hidden but focusable checkbox, fixed top-right."
+  - element: ".home-page .home-theme-toggle-label"
+    type: pattern
+    location: style.css:102-122
+    description: "Visible toggle pill styling."
+  - element: ":checked + label icon/text swap selectors"
+    type: pattern
+    location: style.css:142-156
+    description: "Controls sun/moon and light/dark text visibility."
+  - element: ".home-page .home-shell variable block"
+    type: pattern
+    location: style.css:158-189
+    description: "Default light-theme CSS custom properties."
+  - element: ".home-page .home-theme-toggle-input:checked ~ .home-shell"
+    type: pattern
+    location: style.css:202-219
+    description: "Dark-theme variable override block tied to checkbox state."
+  - element: ".home-page .home-theme-toggle-input:checked + .home-theme-toggle-label"
+    type: pattern
+    location: style.css:221-226
+    description: "Dark-state styling of the toggle control itself."
+  - element: "Responsive toggle positioning"
+    type: pattern
+    location: style.css:349-360
+    description: "Mobile offsets for checkbox/label control in media query."
+  language: CSS
+  lines: 333
+
+patterns_found:
+- category: architecture
+  pattern: "CSS-only state machine via checkbox sibling combinators"
+  description: "Theme state is entirely controlled by `#home-theme-toggle` checked status with adjacent (`+`) and general sibling (`~`) selectors."
+  examples:
+  - file: index.html
+    location: index.html:10-17
+    snippet: "Checkbox and label precede `main.home-shell`, enabling `:checked ~ .home-shell` theme overrides."
+  - file: style.css
+    location: style.css:142-156
+    snippet: "`:checked + .home-theme-toggle-label` swaps icon and text visibility."
+  - file: style.css
+    location: style.css:202-219
+    snippet: "`:checked ~ .home-shell` overrides custom properties for dark theme."
+  prevalence: common
+
+- category: structure
+  pattern: "Homepage-scoped theme variables"
+  description: "Light-theme defaults are stored in custom properties on `.home-page .home-shell` and consumed by homepage component selectors."
+  examples:
+  - file: style.css
+    location: style.css:158-189
+    snippet: "`--home-bg`, `--home-text`, `--home-border`, and related tokens are set in `.home-shell`."
+  - file: style.css
+    location: style.css:228-338
+    snippet: "Homepage cards, sections, links, and focus styles read `var(--home-*)` tokens."
+  prevalence: common
+
+- category: architecture
+  pattern: "Strict homepage selector scoping to prevent profile regressions"
+  description: "Homepage rules are namespaced under `.home-page`; global rules remain in shared section and are reused by profile pages."
+  examples:
+  - file: AGENTS.md
+    location: AGENTS.md:3
+    snippet: "Homepage styles are scoped under `.home-page` to avoid regressions in profile pages."
+  - file: style.css
+    location: style.css:75-368
+    snippet: "Homepage design and theme behavior selectors begin with `.home-page ...`."
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Homepage theme control markup"
+    responsibility: "Exposes UI state and icon/text affordances for theme mode."
+    location: index.html:10-16
+    relationship_to_domain: "domain depends on this"
+  - component: "Homepage shell variable host"
+    responsibility: "Carries light/dark CSS custom properties used across homepage sections."
+    location: style.css:158-219
+    relationship_to_domain: "domain depends on this"
+  - component: "Shared profile styling surfaces"
+    responsibility: "Reuse global `body`, `.card`, `.team-list`, heading/link styles from shared stylesheet."
+    location: style.css:2-73
+    relationship_to_domain: "this uses domain outputs"
+  interfaces_used_by_domain:
+  - interface: "Checkbox `checked` state"
+    location: index.html:10
+    usage_pattern: "Read by CSS combinator selectors to drive mode changes."
+  - interface: "Sibling DOM order (`input` before `label` and `main`)"
+    location: index.html:10-17
+    usage_pattern: "Required for `+` and `~` selectors in CSS-only implementation."
+  - interface: "Homepage custom properties"
+    location: style.css:158-219
+    usage_pattern: "Switched values feed all homepage color/contrast selectors."
+  data_flow_involving_domain: "User toggles checkbox -> CSS selector state changes -> icon/text visibility and `--home-*` variables update -> homepage components repaint."
+  key_relationships_to_domain:
+  - from: index.html:10
+    to: style.css:142-156
+    relationship: "state selector dependency"
+  - from: index.html:10
+    to: style.css:202-219
+    relationship: "state selector dependency"
+  - from: style.css:158-219
+    to: style.css:228-338
+    relationship: "custom property consumption"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - HTML5
+  - CSS3
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain: []
+
+related_conventions:
+  naming_patterns_in_domain: "Homepage-specific hooks use `home-` prefix and are nested under `.home-page` selectors."
+  structure_of_domain: "Theme control is placed before `main.home-shell` to enable sibling selectors; homepage sections are inside `.home-shell`."
+  error_handling_in_domain: "Not applicable (static markup/CSS only in current implementation)."
+  testing_in_domain: "Manual browser verification implied; no automated test framework present."
+  documentation_in_domain: "PRD and AGENTS both record homepage-only scope and `.home-page` isolation expectations."
+
+related_dependencies:
+  internal:
+  - component: index.html
+    relationship_to_domain: "Defines the toggle control, icon/text nodes, and sibling order required by selectors."
+    direction: outbound
+  - component: style.css
+    relationship_to_domain: "Implements all state transitions, variables, and responsive toggle positioning."
+    direction: outbound
+  - component: profile pages (Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html)
+    relationship_to_domain: "Share global stylesheet sections, so homepage rules must stay scoped."
+    direction: bidirectional
+  external: []
+
+requested_findings:
+  css_only_blocks_to_remove:
+  - file: index.html
+    location: index.html:10-16
+    exact_block: |
+      <input type="checkbox" id="home-theme-toggle" class="home-theme-toggle-input">
+      <label for="home-theme-toggle" class="home-theme-toggle-label">
+          <span class="home-theme-icon home-theme-icon-sun" aria-hidden="true">☀</span>
+          <span class="home-theme-icon home-theme-icon-moon" aria-hidden="true">🌙</span>
+          <span class="home-theme-toggle-text home-theme-toggle-text-light">Режим: світла тема</span>
+          <span class="home-theme-toggle-text home-theme-toggle-text-dark">Режим: темна тема</span>
+      </label>
+  - file: style.css
+    location: style.css:92-100
+    exact_block: |
+      .home-page .home-theme-toggle-input {
+          position: fixed;
+          top: calc(16px + env(safe-area-inset-top, 0px));
+          right: calc(16px + env(safe-area-inset-right, 0px));
+          width: 1px;
+          height: 1px;
+          opacity: 0.01;
+          z-index: 11;
+      }
+  - file: style.css
+    location: style.css:124-127
+    exact_block: |
+      .home-page .home-theme-toggle-input:focus-visible + .home-theme-toggle-label {
+          outline: 3px solid #0e639c;
+          outline-offset: 3px;
+      }
+  - file: style.css
+    location: style.css:134-156
+    exact_block: |
+      .home-page .home-theme-icon-moon {
+          display: none;
+      }
+
+      .home-page .home-theme-toggle-text-dark {
+          display: none;
+      }
+
+      .home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-icon-sun {
+          display: none;
+      }
+
+      .home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-icon-moon {
+          display: inline;
+      }
+
+      .home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-toggle-text-light {
+          display: none;
+      }
+
+      .home-page .home-theme-toggle-input:checked + .home-theme-toggle-label .home-theme-toggle-text-dark {
+          display: inline;
+      }
+  - file: style.css
+    location: style.css:202-226
+    exact_block: |
+      .home-page .home-theme-toggle-input:checked ~ .home-shell {
+          --home-bg: #0a0a0a;
+          --home-surface: #141414;
+          --home-surface-soft: #1d1d1d;
+          --home-text: #f5f5f5;
+          --home-muted: #cccccc;
+          --home-border: #3a3a3a;
+          --home-focus: #ffffff;
+          --home-card-bg: linear-gradient(135deg, #131313 0%, #0f0f0f 100%);
+          --home-link-hover-bg: #252525;
+          --home-link-hover-border: #585858;
+          --home-cell-bg: #1a1a1a;
+          --home-cell-title: #f5f5f5;
+          --home-cell-text: #cccccc;
+          --home-page-glow-1: rgba(27, 27, 27, 0.9);
+          --home-page-glow-2: rgba(32, 32, 32, 0.9);
+          --home-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      }
+
+      .home-page .home-theme-toggle-input:checked + .home-theme-toggle-label {
+          border-color: #4a4a4a;
+          background: rgba(19, 19, 19, 0.96);
+          color: #f5f5f5;
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+      }
+  - file: style.css
+    location: style.css:349-352
+    exact_block: |
+      .home-page .home-theme-toggle-input {
+          top: calc(12px + env(safe-area-inset-top, 0px));
+          right: calc(12px + env(safe-area-inset-right, 0px));
+      }
+
+  minimal_structure_to_keep_for_js_top_right_toggle:
+  - file: index.html
+    location: index.html:11-16
+    required_markup_elements:
+      - "One visible top-right control element with class hook equivalent to `.home-theme-toggle-label` for existing positioning styles."
+      - "Two icon spans (`.home-theme-icon-sun`, `.home-theme-icon-moon`) for JS-driven swap."
+      - "One persistent text span (can replace dual light/dark text spans) for accessible state label."
+  - file: style.css
+    location: style.css:102-122
+    required_css_block: |
+      .home-page .home-theme-toggle-label {
+          position: fixed;
+          top: calc(12px + env(safe-area-inset-top, 0px));
+          right: calc(12px + env(safe-area-inset-right, 0px));
+          z-index: 10;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 14px;
+          min-width: 44px;
+          min-height: 44px;
+          box-sizing: border-box;
+          border-radius: 999px;
+          border: 1px solid #bfd0e0;
+          background: rgba(255, 255, 255, 0.95);
+          color: #153047;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 8px 20px rgba(20, 52, 84, 0.14);
+      }
+
+  safest_js_integration_approach_in_index_html:
+  source_basis:
+  - "No existing script tags in index (index.html:1-59)."
+  - "No `.js` files in workspace search (`file_search` for `**/*.js` returned none)."
+  - "Default light theme tokens are already defined in `.home-page .home-shell` (style.css:158-189)."
+  approach:
+  - "Keep default HTML/CSS in light mode (no dark class/attribute in initial markup)."
+  - "Add one small script near end of body that toggles a homepage-scoped state hook on `body.home-page` (for example, class or data attribute) after click on top-right control."
+  - "Drive icon swap from JS by toggling `hidden`/`aria-hidden` on sun/moon spans; keep one visible text label synchronized with current mode."
+  - "Store selected mode in localStorage and on load: apply stored dark mode before first paint when possible; if missing/invalid, keep light mode."
+  - "Keep all selectors homepage-scoped (`.home-page ...`) to preserve profile rendering."
+
+  selectors_that_must_remain_homepage_scoped:
+  - selector: ".home-page .home-shell and its custom properties"
+    location: style.css:158-189
+    reason: "These variables color homepage cards/sections; globalizing can alter shared `.card`, heading, and link behavior on profile pages."
+  - selector: ".home-page .card"
+    location: style.css:228-237
+    reason: "Overrides shared `.card` dimensions/background; removing scope would restyle profile cards."
+  - selector: ".home-page h1, .home-page h2, .home-page h3, .home-page p"
+    location: style.css:239-244
+    reason: "Homepage text-color token injection should not leak to profile typography."
+  - selector: ".home-page .home-team-list* and .home-page .home-cell*"
+    location: style.css:270-333
+    reason: "Homepage list/cell structure is unique; global scope could affect generic `.team-list` patterns."
+  - selector: ".home-page a:focus-visible"
+    location: style.css:335-338
+    reason: "Homepage-specific focus token should not override focus styling globally."
+  - selector: "All top-right toggle selectors"
+    location: style.css:92-156, 221-226, 349-360
+    reason: "Toggle UI exists only on homepage; global selectors would introduce orphan styles on profile pages."
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "None (static frontend)."
+  authorization_patterns_in_domain: "None (static frontend)."
+  data_validation_in_domain: "If JS state persistence is introduced, only expected values (`light`/`dark`) should be accepted from localStorage before applying UI state."
+
+testing_patterns:
+  framework: "None"
+  coverage_areas:
+  - "Theme defaults to light when storage key is absent/invalid."
+  - "Top-right control toggles icons and mode label correctly."
+  - "Homepage variables update without changing profile pages."
+  test_organization: "Manual browser checks on homepage and each profile page."
+  mock_patterns: []
+
+open_questions:
+- question: "Should JS persistence apply only to homepage or be shared with profile pages in future?"
+  context: "Current constraints and selectors are homepage-only; cross-page persistence would expand scope beyond present implementation."
+  type: decision_blocker
+  affects: ["adhoc-theme-toggle-2026-04-11"]
+
+gaps:
+- area: "Existing accessibility pattern for dynamic icon/text announcements"
+  description: "Current implementation is CSS visibility switching; there is no existing JS pattern in repository for aria-live/state announcement behavior."
+  impact: research_blocker
+  affects: ["adhoc-theme-toggle-2026-04-11"]
