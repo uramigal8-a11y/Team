@@ -1,0 +1,304 @@
+plan_id: adhoc-profile-parity-2026-04-11
+objective: "Understand required work to align all profile pages with homepage styling, add profile navbars, and ensure persisted light/dark theme across navigation"
+focus_area: "index + shared styles/scripts + three profile pages"
+created_at: "2026-04-11"
+created_by: "github-copilot-gpt-5.3-codex"
+status: completed
+
+tldr: |
+  - Homepage visual system is explicitly scoped under .home-page and currently only index.html opts into it (source: AGENTS.md:3, index.html:9, style.css:78).
+  - Homepage navbar exists only on index and uses .site-nav with three participant links; profile pages only have a back link (source: index.html:14-18, profile HTML files around back-link section).
+  - Theme toggle currently exists only on index and persists to localStorage key home-theme via script.js; profiles do not load script.js (source: index.html:10, index.html:48, script.js:4, script.js:12, script.js:21).
+  - Shared global styles (body, .card, .profile-photo, links) are active on profile pages; .university class is used in two profiles but has no CSS rule in style.css (source: Kovalov.html:16-17, Myhal.html:16-17, grep no match in style.css).
+
+research_metadata:
+  methodology: "Single-pass hybrid retrieval: read_file on target files + grep_search exact patterns + semantic_search contextual discovery + repository memory check"
+  scope: "Requested files only: index.html, style.css, script.js, and 3 profile pages; plus AGENTS.md and PRD context"
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: AGENTS.md
+  path: AGENTS.md
+  purpose: "Repository-level guardrails for homepage scoping and navbar overflow constraints"
+  key_elements:
+  - element: ".home-page scoping constraint"
+    type: pattern
+    location: "AGENTS.md:3"
+    description: "Homepage styles must stay scoped under .home-page to avoid profile regressions"
+  - element: "navbar overflow rule"
+    type: pattern
+    location: "AGENTS.md:4"
+    description: "Use border-box and one shared max-width on homepage containers/nav blocks"
+  language: markdown
+  lines: 4
+
+- file: index.html
+  path: index.html
+  purpose: "Homepage markup with scoped body class, theme toggle button, and participant navbar"
+  key_elements:
+  - element: "body.home-page"
+    type: pattern
+    location: "index.html:9"
+    description: "Opts homepage into scoped CSS and JS behavior"
+  - element: "home-theme-toggle-button"
+    type: variable
+    location: "index.html:10"
+    description: "Theme toggle control expected by script.js"
+  - element: "nav.site-nav"
+    type: pattern
+    location: "index.html:14"
+    description: "Current participant navigation on homepage"
+  - element: "script include"
+    type: pattern
+    location: "index.html:48"
+    description: "Only page currently loading script.js"
+  language: html
+  lines: 50
+
+- file: style.css
+  path: style.css
+  purpose: "Global base styles plus homepage-only theme and layout system"
+  key_elements:
+  - element: "global body/card/profile styles"
+    type: pattern
+    location: "style.css:2"
+    description: "Default profile appearance for pages without .home-page"
+  - element: ".home-page namespace"
+    type: pattern
+    location: "style.css:78"
+    description: "Homepage-only styling isolation"
+  - element: ".home-page .site-nav"
+    type: pattern
+    location: "style.css:252"
+    description: "Homepage navbar layout with wrapping and overflow guards"
+  - element: "dark theme variables"
+    type: pattern
+    location: "style.css:222"
+    description: "Dark mode tokens applied under [data-home-theme='dark']"
+  - element: "missing .university selector"
+    type: pattern
+    location: "style.css:1-451"
+    description: "No dedicated .university rule in stylesheet"
+  language: css
+  lines: 451
+
+- file: script.js
+  path: script.js
+  purpose: "Homepage theme toggle behavior and persistence"
+  key_elements:
+  - element: "storageKey"
+    type: variable
+    location: "script.js:4"
+    description: "Uses localStorage key home-theme"
+  - element: "home-page selector guard"
+    type: pattern
+    location: "script.js:2-8"
+    description: "Script exits when .home-page or toggle button absent"
+  - element: "applyTheme"
+    type: function
+    location: "script.js:27"
+    description: "Writes data-home-theme and ARIA state"
+  language: javascript
+  lines: 43
+
+- file: Matvii_Kovalov/Kovalov.html
+  path: Matvii_Kovalov/Kovalov.html
+  purpose: "Participant profile page"
+  key_elements:
+  - element: "shared stylesheet include"
+    type: pattern
+    location: "Matvii_Kovalov/Kovalov.html:7"
+    description: "Loads ../style.css"
+  - element: "profile card structure"
+    type: pattern
+    location: "Matvii_Kovalov/Kovalov.html:11"
+    description: "Uses .card and .profile-photo"
+  - element: "back link"
+    type: pattern
+    location: "Matvii_Kovalov/Kovalov.html:24"
+    description: "Only navigation element on page"
+  language: html
+  lines: 28
+
+- file: Myhal_Yurii/Myhal.html
+  path: Myhal_Yurii/Myhal.html
+  purpose: "Participant profile page"
+  key_elements:
+  - element: "shared stylesheet include"
+    type: pattern
+    location: "Myhal_Yurii/Myhal.html:7"
+    description: "Loads ../style.css"
+  - element: "profile card structure"
+    type: pattern
+    location: "Myhal_Yurii/Myhal.html:11"
+    description: "Uses .card and .profile-photo"
+  - element: "back link"
+    type: pattern
+    location: "Myhal_Yurii/Myhal.html:26"
+    description: "Only navigation element on page"
+  language: html
+  lines: 30
+
+- file: Sviatoslav_Lylo/Sviatoslav.html
+  path: Sviatoslav_Lylo/Sviatoslav.html
+  purpose: "Participant profile page"
+  key_elements:
+  - element: "shared stylesheet include"
+    type: pattern
+    location: "Sviatoslav_Lylo/Sviatoslav.html:7"
+    description: "Loads ../style.css"
+  - element: "profile card structure"
+    type: pattern
+    location: "Sviatoslav_Lylo/Sviatoslav.html:11"
+    description: "Uses .card and .profile-photo"
+  - element: "back link"
+    type: pattern
+    location: "Sviatoslav_Lylo/Sviatoslav.html:18"
+    description: "Only navigation element on page"
+  language: html
+  lines: 22
+
+patterns_found:
+- category: structure
+  pattern: "Homepage-only namespace styling"
+  description: "All modern homepage layout/theme styles are prefixed with .home-page and do not apply to profile pages by default"
+  examples:
+  - file: style.css
+    location: "style.css:78"
+    snippet: ".home-page { ... }"
+  - file: style.css
+    location: "style.css:252"
+    snippet: ".home-page .site-nav { ... }"
+  prevalence: common
+
+- category: architecture
+  pattern: "Single-page JS activation guard"
+  description: "Theme script binds only when both .home-page and .home-theme-toggle-button exist"
+  examples:
+  - file: script.js
+    location: "script.js:2-8"
+    snippet: "var homePage = document.querySelector('.home-page'); ... if (!homePage || !toggleButton) { return; }"
+  prevalence: common
+
+- category: structure
+  pattern: "Profile pages use classic card template"
+  description: "Profiles share .card + .profile-photo markup and only include a back link; no navbar and no JS include"
+  examples:
+  - file: Matvii_Kovalov/Kovalov.html
+    location: "Matvii_Kovalov/Kovalov.html:11-24"
+    snippet: "<div class=\"card\"> ... <a href=\"../index.html\">← Назад на головну</a>"
+  - file: Myhal_Yurii/Myhal.html
+    location: "Myhal_Yurii/Myhal.html:11-26"
+    snippet: "<div class=\"card\"> ... <a href=\"../index.html\">← Назад на головну</a>"
+  prevalence: common
+
+- category: naming
+  pattern: "Theme persistence key"
+  description: "localStorage key is hardcoded as home-theme"
+  examples:
+  - file: script.js
+    location: "script.js:4"
+    snippet: "var storageKey = 'home-theme';"
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Homepage markup"
+    responsibility: "Provides nav links, theme toggle control, and home content sections"
+    location: "index.html"
+    relationship_to_domain: "domain depends on this"
+  - component: "Shared stylesheet"
+    responsibility: "Defines both global profile defaults and homepage-scoped modern system"
+    location: "style.css"
+    relationship_to_domain: "domain depends on this"
+  - component: "Theme toggle script"
+    responsibility: "Reads/writes theme state and updates DOM attributes"
+    location: "script.js"
+    relationship_to_domain: "domain depends on this"
+  interfaces_used_by_domain:
+  - interface: "localStorage"
+    location: "script.js:12, script.js:21"
+    usage_pattern: "Read key on load, write key on toggle"
+  - interface: "DOM data attribute"
+    location: "script.js:30"
+    usage_pattern: "Set data-home-theme on body element"
+  data_flow_involving_domain: "User clicks toggle button -> script.js flips in-memory theme -> applies data-home-theme on body -> CSS variables under .home-page[data-home-theme='dark'] update visuals -> script writes home-theme to localStorage -> next page load reads the key"
+  key_relationships_to_domain:
+  - from: "index.html"
+    to: "style.css"
+    relationship: "imports"
+  - from: "index.html"
+    to: "script.js"
+    relationship: "imports"
+  - from: "profile html files"
+    to: "style.css"
+    relationship: "imports"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - "HTML5 (source: .github/copilot-instructions.md:6)"
+  - "CSS3 (source: .github/copilot-instructions.md:6)"
+  - "JavaScript (vanilla) (source: .github/copilot-instructions.md:6)"
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain:
+  - name: "Web Storage API (localStorage)"
+    integration_point: "script.js"
+
+related_conventions:
+  naming_patterns_in_domain: "Homepage-specific selectors/classes are prefixed by home- and/or scoped under .home-page (source: style.css, AGENTS.md)."
+  structure_of_domain: "Homepage uses body.home-page + nav.site-nav + main.home-shell; profile pages use minimal .card layout and back link only."
+  error_handling_in_domain: "script.js wraps localStorage operations in try/catch and falls back to light theme."
+  testing_in_domain: "No automated lint/build/test pipeline documented (source: .github/copilot-instructions.md)."
+  documentation_in_domain: "PRD + AGENTS track homepage-only modernization decisions and constraints (source: docs/PRD.yaml, AGENTS.md)."
+
+related_dependencies:
+  internal:
+  - component: "style.css"
+    relationship_to_domain: "All pages depend on shared stylesheet"
+    direction: outbound
+  - component: "script.js"
+    relationship_to_domain: "Only homepage currently depends on theme logic"
+    direction: outbound
+  external:
+  - name: "Browser DOM + Storage APIs"
+    purpose_for_domain: "Theme state application and persistence"
+
+domain_security_considerations:
+  sensitive_areas:
+  - area: "Client-side localStorage write/read"
+    location: "script.js"
+    concern: "No sensitive data stored; only theme token light/dark"
+  authentication_patterns_in_domain: "Not present in researched files"
+  authorization_patterns_in_domain: "Not present in researched files"
+  data_validation_in_domain: "Theme token validated against allow-list dark|light before use"
+
+testing_patterns:
+  framework: "None"
+  coverage_areas:
+  - "Manual browser verification implied by project instructions"
+  test_organization: "No test directory or automated scripts detected"
+  mock_patterns: []
+
+open_questions:
+- question: "Should profile pages reuse homepage .home-page namespace directly, or should a dedicated profile namespace be added for parity styling?"
+  context: "Current homepage styles are explicitly isolated to avoid regressions, but objective requests stylistic match across profiles."
+  type: decision_blocker
+  affects: ["profile-nav-theme-parity"]
+- question: "Should each profile navbar include a self-link (current page) or only homepage + the other two participants?"
+  context: "Objective wording specifies homepage + other 2 participants, which implies excluding self-link but needs explicit confirmation for markup consistency."
+  type: research
+  affects: ["profile-nav-theme-parity"]
+
+gaps:
+- area: "Runtime visual validation"
+  description: "Research did not execute manual browser checks after hypothetical changes; findings are source-level only."
+  impact: nice_to_know
+  affects: ["profile-nav-theme-parity"]
+- area: "Package/version manifests"
+  description: "No package.json or lock files were found; stack versions beyond HTML5/CSS3/vanilla JS are not applicable in-repo."
+  impact: nice_to_know
+  affects: ["profile-nav-theme-parity"]

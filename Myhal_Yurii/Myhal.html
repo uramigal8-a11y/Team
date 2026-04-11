@@ -6,7 +6,18 @@
     <title>Мій Профіль</title>
     <link rel="stylesheet" href="../style.css">
 </head>
-<body>
+<body data-home-theme="light">
+
+    <button type="button" class="home-theme-toggle-button" aria-live="polite" aria-pressed="false" aria-label="Увімкнути темну тему">
+        <span class="home-theme-icon home-theme-icon-sun" aria-hidden="true">☀</span>
+        <span class="home-theme-icon home-theme-icon-moon" aria-hidden="true">🌙</span>
+    </button>
+
+    <nav class="site-nav" aria-label="Навігація сторінками команди">
+        <a href="../index.html">Головна</a>
+        <a href="../Matvii_Kovalov/Kovalov.html">Ковальов Матвій</a>
+        <a href="../Sviatoslav_Lylo/Sviatoslav.html">Лило Святослав</a>
+    </nav>
 
     <div class="card">
         <img src="../Foto/Fox.png" alt="Моє фото" class="profile-photo">
@@ -25,5 +36,6 @@
         <a href="../index.html">← Назад на головну</a>
     </div>
 
+    <script src="../script.js"></script>
 </body>
 </html>

@@ -1,33 +1,41 @@
 (function () {
-    var homePage = document.querySelector('.home-page');
+    var themeTarget = document.body;
     var toggleButton = document.querySelector('.home-theme-toggle-button');
     var storageKey = 'home-theme';
 
-    if (!homePage || !toggleButton) {
+    if (!themeTarget || !themeTarget.hasAttribute('data-home-theme') || !toggleButton) {
         return;
+    }
+
+    function normalizeTheme(value) {
+        return value === 'dark' || value === 'light' ? value : 'light';
     }
 
     function getStoredTheme() {
         try {
             var rawValue = localStorage.getItem(storageKey);
-            return rawValue === 'dark' || rawValue === 'light' ? rawValue : 'light';
+            return normalizeTheme(rawValue);
         } catch (error) {
             return 'light';
         }
     }
 
     function saveTheme(theme) {
+        var safeTheme = normalizeTheme(theme);
+
         try {
-            localStorage.setItem(storageKey, theme);
+            localStorage.setItem(storageKey, safeTheme);
         } catch (error) {
             // Якщо localStorage недоступний, тема все одно працює в поточній сесії.
         }
+
+        return safeTheme;
     }
 
     function applyTheme(theme) {
-        var nextTheme = theme === 'dark' ? 'dark' : 'light';
+        var nextTheme = normalizeTheme(theme);
 
-        homePage.setAttribute('data-home-theme', nextTheme);
+        themeTarget.setAttribute('data-home-theme', nextTheme);
         toggleButton.setAttribute('aria-pressed', nextTheme === 'dark' ? 'true' : 'false');
         toggleButton.setAttribute(
             'aria-label',
@@ -41,6 +49,6 @@
     toggleButton.addEventListener('click', function () {
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(currentTheme);
-        saveTheme(currentTheme);
+        currentTheme = saveTheme(currentTheme);
     });
 }());

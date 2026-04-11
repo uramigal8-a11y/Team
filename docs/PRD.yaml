@@ -18,9 +18,16 @@ features:
     completed_on: "2026-04-11"
     scope: "Centered homepage containers, fixed navbar overflow, aligned BigMen width with team description"
 
+  - id: adhoc-profile-parity-2026-04-11
+    status: completed
+    completed_on: "2026-04-11"
+    scope: "Profile-page parity: shared navbar on profiles + cross-page persisted theme via body[data-home-theme] and .home-theme-toggle-button"
+
 decisions:
   - date: "2026-04-11"
     decision: "For homepage full-width blocks, use border-box and one shared max-width to prevent overflow drift."
+  - date: "2026-04-11"
+    decision: "Theme runtime is page-agnostic and keyed by home-theme; each page must expose body[data-home-theme] and one .home-theme-toggle-button."
 
 notes:
   - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
@@ -32,3 +39,6 @@ change_log:
   - date: "2026-04-11"
     type: minimal
     entry: "Recorded completed layout fix: centered homepage containers, navbar overflow fix via box-sizing, and unified max-width for BigMen and team description blocks."
+  - date: "2026-04-11"
+    type: minimal
+    entry: "Marked profile-parity completion: profile navbars added and theme persistence generalized across homepage and profile pages."
