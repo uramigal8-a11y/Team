@@ -1,0 +1,347 @@
+plan_id: adhoc-index-modernization-2026-04-11
+objective: "Modernize homepage index.html with monochrome style and add team description cards (research only)."
+focus_area: homepage
+created_at: "2026-04-11"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - Current homepage is a single centered `.card` containing intro text, `<hr>`, and a `.team-list` with 3 profile links in `index.html:11-29`.
+  - Shared stylesheet defines global element styles (`body`, `h1`, `p`, `a`, `hr`) and key reusable classes (`.card`, `.team-list`, `.profile-photo`) in `style.css:2-75`.
+  - Profile pages also depend on `.card` and global typography/link styles via `../style.css`, so broad selector changes can unintentionally alter all profile pages.
+  - Profile links currently use relative paths that match existing file structure and must remain unchanged to avoid navigation regressions.
+  - Safe modernization path is to add homepage-scoped wrapper/classes in HTML and style them in CSS without changing existing profile URL targets.
+
+research_metadata:
+  methodology: "Hybrid retrieval with direct reads (`read_file`), exact matching (`grep_search`), and line-precise inspection via PowerShell content dumps."
+  scope: "Homepage and shared stylesheet, plus profile pages for dependency/risk verification."
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: index.html
+  path: d:/MyFiles/Team/index.html
+  purpose: "Main team homepage with member links."
+  key_elements:
+  - element: "<html lang=\"uk\">"
+    type: pattern
+    location: index.html:2
+    description: "Page language is Ukrainian."
+  - element: ".card"
+    type: pattern
+    location: index.html:11
+    description: "Single content container for homepage."
+  - element: ".team-list"
+    type: pattern
+    location: index.html:18
+    description: "List wrapper for member profile links."
+  - element: "Profile links"
+    type: pattern
+    location: index.html:20
+    description: "Relative href `Myhal_Yurii/Myhal.html`."
+  - element: "Profile links"
+    type: pattern
+    location: index.html:23
+    description: "Relative href `Matvii_Kovalov/Kovalov.html`."
+  - element: "Profile links"
+    type: pattern
+    location: index.html:26
+    description: "Relative href `Sviatoslav_Lylo/Sviatoslav.html`."
+  language: HTML
+  lines: 32
+
+- file: style.css
+  path: d:/MyFiles/Team/style.css
+  purpose: "Shared site styling for homepage and profile pages."
+  key_elements:
+  - element: "body"
+    type: pattern
+    location: style.css:2
+    description: "Global page background, font, and spacing."
+  - element: ".card"
+    type: pattern
+    location: style.css:10
+    description: "Reusable white card container with shadow and radius."
+  - element: ".profile-photo"
+    type: pattern
+    location: style.css:20
+    description: "Circular profile image style used on profile pages."
+  - element: "h1"
+    type: pattern
+    location: style.css:29
+    description: "Global heading style."
+  - element: "p"
+    type: pattern
+    location: style.css:35
+    description: "Global paragraph style."
+  - element: "a / a:hover"
+    type: pattern
+    location: style.css:41
+    description: "Global link color and hover underline."
+  - element: ".team-list"
+    type: pattern
+    location: style.css:51
+    description: "List reset and spacing for homepage team list."
+  - element: ".team-list li"
+    type: pattern
+    location: style.css:57
+    description: "Per-item card-like style and hover transform."
+  language: CSS
+  lines: 75
+
+- file: Myhal.html
+  path: d:/MyFiles/Team/Myhal_Yurii/Myhal.html
+  purpose: "Member profile page with shared styles and backlink."
+  key_elements:
+  - element: "href=\"../style.css\""
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:7
+    description: "Depends on shared stylesheet."
+  - element: ".card"
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:11
+    description: "Uses shared card layout."
+  - element: ".profile-photo"
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:12
+    description: "Uses shared photo style."
+  - element: ".university"
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:16
+    description: "Paragraph class for university text."
+  - element: "href=\"../index.html\""
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:25
+    description: "Back link to homepage."
+  language: HTML
+  lines: 29
+
+- file: Kovalov.html
+  path: d:/MyFiles/Team/Matvii_Kovalov/Kovalov.html
+  purpose: "Member profile page with shared styles and backlink."
+  key_elements:
+  - element: "href=\"../style.css\""
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:7
+    description: "Depends on shared stylesheet."
+  - element: ".card"
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:11
+    description: "Uses shared card layout."
+  - element: ".profile-photo"
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:12
+    description: "Uses shared photo style."
+  - element: ".university"
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:16
+    description: "Paragraph class for university text."
+  - element: "href=\"../index.html\""
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:24
+    description: "Back link to homepage."
+  language: HTML
+  lines: 28
+
+- file: Sviatoslav.html
+  path: d:/MyFiles/Team/Sviatoslav_Lylo/Sviatoslav.html
+  purpose: "Member profile page with shared styles and backlink."
+  key_elements:
+  - element: "href=\"../style.css\""
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:7
+    description: "Depends on shared stylesheet."
+  - element: ".card"
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:11
+    description: "Uses shared card layout."
+  - element: ".profile-photo"
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:12
+    description: "Uses shared photo style."
+  - element: "href=\"../index.html\""
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:17
+    description: "Back link to homepage."
+  language: HTML
+  lines: 21
+
+patterns_found:
+- category: structure
+  pattern: "Single-container homepage layout"
+  description: "Homepage content is entirely inside one `.card` with heading, intro paragraph, divider, label, and member list."
+  examples:
+  - file: index.html
+    location: index.html:11
+    snippet: "<div class=\"card\"> ... <ul class=\"team-list\"> ... </ul>"
+  prevalence: common
+
+- category: architecture
+  pattern: "Shared stylesheet for all pages"
+  description: "All pages link one shared `style.css`; no per-page CSS files are used."
+  examples:
+  - file: index.html
+    location: index.html:7
+    snippet: "<link rel=\"stylesheet\" href=\"style.css\">"
+  - file: Myhal_Yurii/Myhal.html
+    location: Myhal_Yurii/Myhal.html:7
+    snippet: "<link rel=\"stylesheet\" href=\"../style.css\">"
+  prevalence: common
+
+- category: naming
+  pattern: "Semantic class naming for reusable blocks"
+  description: "Reusable classes include `.card`, `.team-list`, `.profile-photo`, `.university`."
+  examples:
+  - file: style.css
+    location: style.css:10
+    snippet: ".card { ... }"
+  - file: style.css
+    location: style.css:51
+    snippet: ".team-list { ... }"
+  - file: style.css
+    location: style.css:20
+    snippet: ".profile-photo { ... }"
+  prevalence: common
+
+- category: structure
+  pattern: "Profile navigation via relative paths"
+  description: "Homepage links to profile pages with folder-relative hrefs; profile pages link back to homepage."
+  examples:
+  - file: index.html
+    location: index.html:20
+    snippet: "<a href=\"Myhal_Yurii/Myhal.html\">..."
+  - file: Matvii_Kovalov/Kovalov.html
+    location: Matvii_Kovalov/Kovalov.html:24
+    snippet: "<a href=\"../index.html\">← Назад на головну</a>"
+  prevalence: common
+
+- category: architecture
+  pattern: "Global element selectors influence all pages"
+  description: "Selectors `body`, `h1`, `p`, `a`, `hr` are global and therefore affect both homepage and profile pages."
+  examples:
+  - file: style.css
+    location: style.css:2
+    snippet: "body { ... }"
+  - file: style.css
+    location: style.css:41
+    snippet: "a { color: #007bff; ... }"
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Homepage markup"
+    responsibility: "Presents team overview and links to member pages."
+    location: index.html
+    relationship_to_domain: "domain depends on this"
+  - component: "Shared stylesheet"
+    responsibility: "Defines visual language reused by homepage and profiles."
+    location: style.css
+    relationship_to_domain: "domain depends on this"
+  - component: "Profile pages"
+    responsibility: "Consume shared styles and provide backlink navigation."
+    location: "Myhal_Yurii/, Matvii_Kovalov/, Sviatoslav_Lylo/"
+    relationship_to_domain: "this uses domain outputs"
+  interfaces_used_by_domain:
+  - interface: "HTML anchor href relative navigation"
+    location: index.html:20
+    usage_pattern: "Homepage outbound links to profile HTML files"
+  - interface: "Shared CSS class hooks"
+    location: style.css:10
+    usage_pattern: "HTML class attributes map to shared visual blocks"
+  data_flow_involving_domain: "User opens index.html, clicks team member link, browser navigates to profile page; profile back link returns to index.html."
+  key_relationships_to_domain:
+  - from: index.html
+    to: style.css
+    relationship: imports
+  - from: index.html
+    to: Myhal_Yurii/Myhal.html
+    relationship: links
+  - from: index.html
+    to: Matvii_Kovalov/Kovalov.html
+    relationship: links
+  - from: index.html
+    to: Sviatoslav_Lylo/Sviatoslav.html
+    relationship: links
+
+related_technology_stack:
+  languages_used_in_domain:
+  - HTML5
+  - CSS3
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain: []
+
+related_conventions:
+  naming_patterns_in_domain: "Kebab-case CSS class names (`team-list`, `profile-photo`) plus semantic block names (`card`, `university`)."
+  structure_of_domain: "Homepage uses one main `.card` with team list; profile pages follow same `.card` shell and back-link pattern."
+  error_handling_in_domain: "No runtime error-handling layer (static HTML/CSS)."
+  testing_in_domain: "Manual browser validation implied; no automated tests or linters present."
+  documentation_in_domain: "Conventions confirmed from repository memory `/memories/repo/team-site.md` and observed files."
+
+related_dependencies:
+  internal:
+  - component: style.css
+    relationship_to_domain: "Homepage visual presentation depends on shared selectors and classes."
+    direction: outbound
+  - component: Myhal_Yurii/Myhal.html
+    relationship_to_domain: "Linked from homepage list item."
+    direction: outbound
+  - component: Matvii_Kovalov/Kovalov.html
+    relationship_to_domain: "Linked from homepage list item."
+    direction: outbound
+  - component: Sviatoslav_Lylo/Sviatoslav.html
+    relationship_to_domain: "Linked from homepage list item."
+    direction: outbound
+  external: []
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "None (static site)."
+  authorization_patterns_in_domain: "None (static site)."
+  data_validation_in_domain: "No input handling on homepage."
+
+testing_patterns:
+  framework: "None"
+  coverage_areas:
+  - "Navigation links and visual layout verified manually in browser."
+  test_organization: "No test directory or automated suite."
+  mock_patterns: []
+
+open_questions:
+- question: "Which exact placeholder card count is expected on homepage (one generic team description card or one per member plus a team-level card)?"
+  context: "Requirement requests adding 'cells/cards with team description text placeholders' but does not define quantity/granularity."
+  type: research
+  affects: ["N/A"]
+- question: "Should monochrome palette be strictly black/white only, or include gray tones for borders/background contrast?"
+  context: "Current requirement says black and white; practical card separation in CSS usually uses grayscale shades."
+  type: research
+  affects: ["N/A"]
+
+gaps:
+- area: "Visual acceptance criteria"
+  description: "No explicit reference design, spacing scale, or typography preference was provided for 'modern' look."
+  impact: nice_to_know
+  affects: ["N/A"]
+- area: "Homepage-only CSS scoping"
+  description: "Existing stylesheet is global; without new homepage-specific wrapper/classes, updates may affect profile pages unintentionally."
+  impact: research_blocker
+  affects: ["N/A"]
+
+implementation_plan_snapshot:
+  summary: "Safe HTML+CSS modernization plan for monochrome homepage with description cards while preserving links and shared constraints."
+  html_steps:
+  - "Keep `<html lang=\"uk\">` and existing profile href values unchanged in `index.html` (`Myhal_Yurii/Myhal.html`, `Matvii_Kovalov/Kovalov.html`, `Sviatoslav_Lylo/Sviatoslav.html`)."
+  - "Wrap homepage content in a homepage-specific parent class (for example, a section around existing `.card`) to scope new styles to index only."
+  - "Retain existing `.team-list` list structure for link stability; inside each `<li>`, keep `<a>` and add short placeholder description paragraph/block beneath the link text."
+  - "Optionally add separate monochrome info cards block below intro (2-3 cards) using new classes dedicated to homepage only (e.g., card grid + card item classes)."
+  css_steps:
+  - "Introduce CSS variables for monochrome palette (`--bg`, `--surface`, `--text`, `--muted`, `--border`) using black/white/grays."
+  - "Create homepage-scoped selectors (e.g., `.home-page ...`) instead of changing global `body`, `h1`, `p`, `a` directly."
+  - "Style team list items/cards with subtle border, radius, and non-color-dependent hover (shadow/translate with grayscale only)."
+  - "Add responsive grid/flex rules for new description cards and list spacing so layout remains usable on mobile widths."
+  link_safety_checks:
+  - "Do not rename member folders/files or change href strings in homepage list."
+  - "Do not alter `../index.html` backlinks in profile pages."
+  - "Do not replace shared class names used by profile pages (`.card`, `.profile-photo`, `.university`) unless scoped override is homepage-only."
