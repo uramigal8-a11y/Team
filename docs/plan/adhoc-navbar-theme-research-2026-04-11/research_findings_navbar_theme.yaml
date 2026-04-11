@@ -1,0 +1,325 @@
+plan_id: adhoc-navbar-theme-research-2026-04-11
+objective: "Identify why navbar does not fully work with light/dark themes and what files need changes"
+focus_area: "homepage navbar + theme toggle"
+created_at: "2026-04-11"
+created_by: "gem-researcher"
+status: completed
+
+tldr: |
+  - Navbar markup exists only on homepage in index.html, with .site-nav placed as a sibling before .home-shell (source: index.html:14, index.html:20).
+  - Theme variables are declared on .home-page .home-shell, while navbar links consume var(--home-text) outside that scope, so link color token is unresolved on navbar (source: style.css:136, style.css:269-270).
+  - Theme toggling uses data-home-theme on body.home-page and localStorage key home-theme (source: script.js:2-4, script.js:30).
+  - Navbar container and hover colors use fixed rgba white values instead of theme tokens, causing incomplete adaptation between light/dark states (source: style.css:259, style.css:288).
+  - Profile pages do not include navbar/theme-toggle markup and currently rely on global styles; homepage-scoped changes remain low-risk if .home-page scoping is preserved (source: Myhal_Yurii/Myhal.html:1-27, Matvii_Kovalov/Kovalov.html:1-27, Sviatoslav_Lylo/Sviatoslav.html:1-22, AGENTS.md:1-3).
+
+research_metadata:
+  methodology: "Single-pass hybrid retrieval: targeted read_file on key files, grep_search for exact selectors/state keys, relationship discovery by tracing HTML structure -> JS state application -> CSS variable scope."
+  scope: "Homepage navbar/theme implementation and shared stylesheet impact on profile pages."
+  confidence: high
+  coverage: 95
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: AGENTS.md
+  path: AGENTS.md
+  purpose: "Repository conventions and prior homepage constraints"
+  key_elements:
+  - element: "homepage style scoping rule"
+    type: pattern
+    location: "AGENTS.md:3"
+    description: "Homepage styles should remain under .home-page to avoid profile regressions."
+  language: markdown
+  lines: 3
+
+- file: index.html
+  path: index.html
+  purpose: "Homepage structure containing theme toggle and navbar"
+  key_elements:
+  - element: "body.home-page"
+    type: pattern
+    location: "index.html:9"
+    description: "Theme state target element in JS/CSS."
+  - element: "button.home-theme-toggle-button"
+    type: pattern
+    location: "index.html:10"
+    description: "User control for light/dark switch with ARIA state attributes."
+  - element: "nav.site-nav"
+    type: pattern
+    location: "index.html:14"
+    description: "Navbar with member links."
+  - element: "main.home-shell"
+    type: pattern
+    location: "index.html:20"
+    description: "Container that defines theme CSS variables in stylesheet."
+  language: html
+  lines: 56
+
+- file: script.js
+  path: script.js
+  purpose: "Homepage theme state initialization and toggle behavior"
+  key_elements:
+  - element: "storageKey = 'home-theme'"
+    type: variable
+    location: "script.js:4"
+    description: "Persisted theme key in localStorage."
+  - element: "applyTheme(theme)"
+    type: function
+    location: "script.js:27"
+    description: "Normalizes theme and writes data-home-theme + ARIA attributes."
+  - element: "homePage.setAttribute('data-home-theme', nextTheme)"
+    type: pattern
+    location: "script.js:30"
+    description: "State is applied to body.home-page via data attribute."
+  language: javascript
+  lines: 46
+
+- file: style.css
+  path: style.css
+  purpose: "Global styles and homepage-scoped navbar/theme styling"
+  key_elements:
+  - element: ".home-page .home-shell custom properties"
+    type: pattern
+    location: "style.css:136-156"
+    description: "Light theme tokens including --home-text are scoped to .home-shell."
+  - element: ".home-page[data-home-theme='dark'] .home-shell"
+    type: pattern
+    location: "style.css:223-239"
+    description: "Dark theme overrides tokens on .home-shell."
+  - element: ".home-page .site-nav"
+    type: pattern
+    location: "style.css:252-262"
+    description: "Navbar container styles include fixed rgba white background/border."
+  - element: ".home-page .site-nav a { color: var(--home-text); }"
+    type: pattern
+    location: "style.css:269-270"
+    description: "Navbar links consume token not guaranteed in scope."
+  - element: ".home-page .site-nav a:hover"
+    type: pattern
+    location: "style.css:286-289"
+    description: "Hover/focus backgrounds are fixed rgba white, not theme variables."
+  - element: ".home-page[data-home-theme='dark'] .home-theme-toggle-button"
+    type: pattern
+    location: "style.css:242-248"
+    description: "Contains unrelated grid-template-columns declaration; likely misplaced rule."
+  language: css
+  lines: 456
+
+- file: Myhal.html
+  path: Myhal_Yurii/Myhal.html
+  purpose: "Profile page using shared stylesheet"
+  key_elements:
+  - element: "link href='../style.css'"
+    type: pattern
+    location: "Myhal_Yurii/Myhal.html:7"
+    description: "Profiles consume global shared CSS."
+  language: html
+  lines: 27
+
+- file: Kovalov.html
+  path: Matvii_Kovalov/Kovalov.html
+  purpose: "Profile page using shared stylesheet"
+  key_elements:
+  - element: "link href='../style.css'"
+    type: pattern
+    location: "Matvii_Kovalov/Kovalov.html:7"
+    description: "Profiles consume global shared CSS."
+  language: html
+  lines: 27
+
+- file: Sviatoslav.html
+  path: Sviatoslav_Lylo/Sviatoslav.html
+  purpose: "Profile page using shared stylesheet"
+  key_elements:
+  - element: "link href='../style.css'"
+    type: pattern
+    location: "Sviatoslav_Lylo/Sviatoslav.html:7"
+    description: "Profiles consume global shared CSS."
+  language: html
+  lines: 22
+
+patterns_found:
+- category: structure
+  pattern: "Navbar exists only on homepage and is outside home-shell"
+  description: "nav.site-nav is a sibling placed before main.home-shell, not a child of the token container."
+  examples:
+  - file: index.html
+    location: "index.html:14-20"
+    snippet: "<nav class='site-nav'> ... </nav> followed by <main class='home-shell'>"
+  prevalence: common
+
+- category: architecture
+  pattern: "Theme state via body data attribute + CSS descendant selectors"
+  description: "JS writes data-home-theme to body.home-page; CSS switches dark state through [data-home-theme='dark'] selectors."
+  examples:
+  - file: script.js
+    location: "script.js:30"
+    snippet: "homePage.setAttribute('data-home-theme', nextTheme);"
+  - file: style.css
+    location: "style.css:223"
+    snippet: ".home-page[data-home-theme='dark'] .home-shell { ... }"
+  prevalence: common
+
+- category: architecture
+  pattern: "Theme tokens scoped to home-shell"
+  description: "Core custom properties are declared on .home-page .home-shell instead of the broader .home-page root."
+  examples:
+  - file: style.css
+    location: "style.css:136-156"
+    snippet: ".home-page .home-shell { --home-text: #163148; ... }"
+  prevalence: common
+
+- category: error_handling
+  pattern: "Navbar uses unresolved token and fixed colors"
+  description: "Navbar links reference var(--home-text) while outside token scope; container/hover use hardcoded rgba white values, reducing true light/dark adaptation."
+  examples:
+  - file: style.css
+    location: "style.css:269-270"
+    snippet: ".home-page .site-nav a { color: var(--home-text); }"
+  - file: style.css
+    location: "style.css:259, 288"
+    snippet: "background: rgba(255, 255, 255, 0.04/0.08)"
+  - file: style.css
+    location: "style.css:36-38"
+    snippet: "global a { color: #ff0033; }"
+  prevalence: common
+
+- category: structure
+  pattern: "Homepage style scoping to protect profile pages"
+  description: "Homepage-specific blocks consistently use .home-page prefix to reduce shared CSS regressions."
+  examples:
+  - file: AGENTS.md
+    location: "AGENTS.md:1-3"
+    snippet: "Homepage styles are scoped under .home-page"
+  - file: style.css
+    location: "style.css:73 onward"
+    snippet: "Most homepage rules start with .home-page"
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "Homepage document structure"
+    responsibility: "Hosts theme toggle control, navbar links, and content shell"
+    location: "index.html"
+    relationship_to_domain: "domain is this page"
+  - component: "Theme state controller"
+    responsibility: "Reads/writes theme preference and updates DOM state/ARIA"
+    location: "script.js"
+    relationship_to_domain: "domain depends on this"
+  - component: "Shared stylesheet"
+    responsibility: "Defines global and homepage-scoped visual behavior"
+    location: "style.css"
+    relationship_to_domain: "domain depends on this"
+  interfaces_used_by_domain:
+  - interface: "DOM querySelector/setAttribute/addEventListener"
+    location: "script.js:2-3,30,41"
+    usage_pattern: "Select elements, persist state to attributes, react to click"
+  - interface: "Web Storage localStorage"
+    location: "script.js:12,21"
+    usage_pattern: "Store and retrieve last selected theme"
+  data_flow_involving_domain: "On load, script.js reads localStorage(home-theme) -> applies data-home-theme on body.home-page -> CSS selectors compute appearance; user click toggles state and persists it. Navbar styling reads CSS vars and static rgba rules from style.css."
+  key_relationships_to_domain:
+  - from: "index.html:9"
+    to: "script.js:2,30"
+    relationship: "script targets body.home-page and applies data-home-theme"
+  - from: "index.html:14"
+    to: "style.css:252-289"
+    relationship: "nav.site-nav rendered by homepage navbar rules"
+  - from: "style.css:136-156"
+    to: "style.css:269-270"
+    relationship: "nav link color depends on token defined in separate subtree"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - HTML5
+  - CSS3
+  - JavaScript (vanilla)
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain:
+  - name: "Web Storage API"
+    integration_point: "script.js localStorage getItem/setItem"
+
+related_conventions:
+  naming_patterns_in_domain: "Homepage-specific classes prefixed with home- and scoped via .home-page ancestor."
+  structure_of_domain: "Shared style.css contains both global defaults and homepage-scoped sections; homepage HTML keeps nav outside main content shell."
+  error_handling_in_domain: "Theme persistence catches localStorage exceptions and falls back to light theme."
+  testing_in_domain: "No automated tests present in workspace artifacts."
+  documentation_in_domain: "PRD/AGENTS record homepage scoping and navbar overflow constraints."
+
+related_dependencies:
+  internal:
+  - component: "index.html"
+    relationship_to_domain: "Provides navbar and toggle markup for CSS/JS"
+    direction: bidirectional
+  - component: "style.css"
+    relationship_to_domain: "Provides visual states and tokens"
+    direction: outbound
+  - component: "script.js"
+    relationship_to_domain: "Provides runtime theme state"
+    direction: outbound
+  - component: "Profile pages"
+    relationship_to_domain: "Consume shared stylesheet and can be affected by global selector changes"
+    direction: inbound
+  external:
+  - name: "Browser DOM + Storage APIs"
+    purpose_for_domain: "Theme state application and persistence"
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "None"
+  authorization_patterns_in_domain: "None"
+  data_validation_in_domain: "Theme input constrained to dark/light in script.js:13 and script.js:28"
+
+testing_patterns:
+  framework: "none"
+  coverage_areas:
+  - "Manual visual check implied only"
+  test_organization: "No test files in analyzed domain"
+  mock_patterns: []
+
+open_questions:
+- question: "Should homepage theme tokens be rooted at .home-page instead of .home-shell?"
+  context: "Navbar is outside .home-shell but consumes theme tokens."
+  type: decision_blocker
+  affects: ["navbar-theme-compatibility"]
+- question: "Was grid-template-columns in dark toggle-button block intentionally moved from .home-cells?"
+  context: "Rule appears semantically unrelated and may indicate accidental paste during edits."
+  type: research
+  affects: ["navbar-theme-compatibility"]
+
+gaps:
+- area: "Cross-browser computed style validation"
+  description: "Research is static (code inspection only); no runtime computed-style capture was executed."
+  impact: research_blocker
+  affects: ["navbar-theme-compatibility"]
+- area: "Design intent for light-theme navbar contrast"
+  description: "No explicit design token contract exists in PRD for nav background/hover in both themes."
+  impact: nice_to_know
+  affects: ["navbar-theme-compatibility"]
+
+requested_analysis:
+  navbar_structure_and_selectors:
+  - "HTML: body.home-page contains button.home-theme-toggle-button, then nav.site-nav with three links (index.html:9-18)."
+  - "CSS selectors: .home-page .site-nav (style.css:252), .home-page .site-nav a (style.css:269), hover/focus selectors at style.css:286-289."
+  theme_toggle_mechanism:
+  - "Theme key: localStorage['home-theme'] with allowed values dark/light (script.js:4,12-13)."
+  - "Applied state: data-home-theme on body.home-page (script.js:30)."
+  - "Dark-state selectors use [data-home-theme='dark'] descendants in CSS (style.css:128,223,242)."
+  exact_incompatibilities:
+  - "Token scope mismatch: --home-text defined on .home-shell (style.css:136,140) but navbar links use var(--home-text) outside that scope (style.css:269-270), causing unresolved variable and fallback to inherited/global link color (style.css:36-38)."
+  - "Navbar container and hover visuals use fixed rgba white values (style.css:259,288) rather than theme tokens, so adaptation is partial between light/dark states."
+  - "Dark toggle-button block includes grid-template-columns (style.css:247), unrelated to button and likely unintended; indicates potential style-state contamination risk."
+  minimal_safe_change_list:
+  - file: "style.css"
+    change_scope: "theme token scope + navbar tokenization"
+    rationale: "Move or duplicate core --home-* variables to .home-page (and dark override to .home-page[data-home-theme='dark']) so nav siblings resolve tokens; replace hardcoded nav rgba colors with token-based values."
+  - file: "style.css"
+    change_scope: "cleanup misplaced declaration"
+    rationale: "Remove/relocate grid-template-columns from dark toggle-button rule to avoid unrelated layout side effects."
+  - file: "index.html"
+    change_scope: "optional structural alignment"
+    rationale: "Alternative minimal fix is moving nav.site-nav inside .home-shell so existing token scope applies without broadening variable root."
+  profile_regression_risks:
+  - "High if selectors are de-scoped from .home-page or global a/.card rules are changed; profiles rely on shared style.css and have no homepage classes (Myhal_Yurii/Myhal.html:1-27, Matvii_Kovalov/Kovalov.html:1-27, Sviatoslav_Lylo/Sviatoslav.html:1-22)."
+  - "Low for homepage-only selectors that stay under .home-page, consistent with AGENTS guidance (AGENTS.md:1-3)."
