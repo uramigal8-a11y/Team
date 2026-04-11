@@ -13,6 +13,15 @@ features:
     completed_on: "2026-04-11"
     scope: "Added descriptive team cells on homepage, including one placeholder cell"
 
+  - id: layout-fix-center-navbar-bigmen
+    status: completed
+    completed_on: "2026-04-11"
+    scope: "Centered homepage containers, fixed navbar overflow, aligned BigMen width with team description"
+
+decisions:
+  - date: "2026-04-11"
+    decision: "For homepage full-width blocks, use border-box and one shared max-width to prevent overflow drift."
+
 notes:
   - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
 
@@ -20,3 +29,6 @@ change_log:
   - date: "2026-04-11"
     type: minimal
     entry: "Marked homepage monochrome modernization and team description cells as complete; recorded .home-page style-scoping constraint."
+  - date: "2026-04-11"
+    type: minimal
+    entry: "Recorded completed layout fix: centered homepage containers, navbar overflow fix via box-sizing, and unified max-width for BigMen and team description blocks."

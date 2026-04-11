@@ -1,0 +1,169 @@
+plan_id: layout-fix-center-navbar-bigmen-2026-04-11
+objective: "Відцентрувати блоки на головній, виправити navbar щоб не виходив за межі екрана, і зменшити ширину BigMen до ширини опису команди."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 1
+  risk_score: medium
+
+tldr: |
+  - Робота обмежена homepage-скоупом, щоб не зачепити profile pages (source: AGENTS.md).
+  - Причина overflow у navbar: width: 100% + padding/border без box-sizing у .home-page .site-nav (source: user findings, style.css).
+  - Причина надмірної ширини блоків: .home-page .card з width: 100% і max-width: none (source: user findings, style.css).
+  - BigMen (hero) у index.html має лишитися в межах контейнера опису команди через .home-page scope (source: user findings, index.html, style.css).
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Неправильне обмеження ширини зламає адаптивність на 320px і знову дасть горизонтальний скрол."
+      likelihood: medium
+      impact: medium
+      mitigation: "Ввести box-sizing: border-box для .home-page .site-nav та перевірити viewport 320/375/768/1280."
+    - scenario: "Зміни в .card/.site-nav витечуть на профілі через спільний style.css."
+      likelihood: low
+      impact: high
+      mitigation: "Тільки .home-page descendant-селектори; без глобальних правок для .card/.site-nav."
+  assumptions:
+    - "Правки робляться лише у index.html і style.css (source: workspace structure)."
+    - "Stack: чистий HTML5 + CSS3, без JS (source: .github/copilot-instructions.md)."
+
+implementation_specification:
+  code_structure: "Локальні зміни у shared style.css лише під .home-page + мінімальна правка index.html за потреби (без зміни навігаційних href)."
+  affected_areas:
+    - "index.html"
+    - "style.css"
+  component_details:
+    - component: "Navbar container"
+      responsibility: "Прибрати overflow і втримати navbar у межах екрана."
+      interfaces:
+        - ".home-page .site-nav: box-sizing, width/max-width, падінги/бордери без переповнення"
+    - component: "Homepage cards centering"
+      responsibility: "Відцентрувати hero/section блоки в однаковому контейнері."
+      interfaces:
+        - ".home-page .home-shell, .home-page .home-hero, .home-page .home-section"
+    - component: "BigMen hero width"
+      responsibility: "Зробити ширину hero співмірною з блоком опису команди."
+      interfaces:
+        - ".home-page .card/.home-hero обмеження ширини в межах того ж max-width що й опис"
+  dependencies:
+    - component: "Homepage cards centering"
+      relationship: "Використовує узгоджені container constraints із Navbar і Hero."
+  integration_points:
+    - "index.html: структура .home-page/.home-shell/.home-hero/.home-section"
+    - "style.css: homepage-scoped правила"
+
+contracts:
+  - from_task: T1
+    to_task: T2
+    interface: "Diff + чеклист ручної валідації responsive/layout/non-regression"
+    format: "Короткий список перевірок і фактів pass/fail"
+  - from_task: T1
+    to_task: T2
+    interface: "Box-model контракт для повноширинних homepage контейнерів і navbar"
+    format: "CSS-інваріанти: .home-page .site-nav, .home-page .home-shell, .home-page .home-hero, .home-page .home-section мають узгоджені box-sizing/width/max-width"
+
+tasks:
+  - id: T1
+    title: "Виправити homepage layout: centering, navbar overflow, BigMen width"
+    description: |
+      Застосувати homepage-scoped CSS правки для трьох проблем:
+      1) navbar overflow,
+      2) надмірна ширина блоків,
+      3) ширина BigMen hero.
+      Не змінювати логіку сторінки та не чіпати profile pages.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    priority: high
+    status: pending
+    estimated_lines: 85
+    dependencies: []
+    conflicts_with: []
+    targets:
+      - index.html
+      - style.css
+    context_files:
+      - path: index.html
+        description: "Hero BigMen і структура головної сторінки."
+      - path: style.css
+        description: "Правила .home-page .site-nav, .home-page .card та контейнери home-shell/home-section."
+    acceptance_criteria:
+      - "Об'єктивно: на viewport 320/375/768/1280 виконується document.documentElement.scrollWidth <= document.documentElement.clientWidth."
+      - "Блоки головної візуально відцентровані в одному контейнері."
+      - "Вимірювано: BigMen hero і блок 'Опис нашої команди' мають однаковий max-width і box-sizing (узгоджений box-model), без випадкового розширення через padding/border."
+      - "Edge-case: navbar не ламає layout при довгому нерозривному тексті (без пробілів) і при zoom 200%."
+      - "Інваріанти профілів: на 3 profile pages збережено навігацію, ширину .card у межах viewport, і відсутній горизонтальний скрол."
+    verification:
+      - "Перевірити на 320/375/768/1280: document.documentElement.scrollWidth <= document.documentElement.clientWidth."
+      - "Порівняти computed max-width/box-sizing для BigMen hero і блоку опису команди."
+      - "Перевірити navbar із довгим нерозривним рядком та zoom 200%: без горизонтального скролу."
+      - "Smoke-check 3 profile pages за інваріантами non-regression."
+
+  - id: T2
+    title: "Перевірка змін і non-regression рев'ю"
+    description: |
+      Провести технічне рев'ю змін T1 з фокусом на responsive-верстку,
+      scope-ізоляцію та відсутність побічного впливу на профільні сторінки.
+    wave: 2
+    agent: gem-reviewer
+    prototype: false
+    priority: medium
+    status: pending
+    estimated_lines: 55
+    dependencies:
+      - T1
+    conflicts_with: []
+    targets:
+      - index.html
+      - style.css
+    context_files:
+      - path: index.html
+        description: "Перевірка структури hero/sections/nav."
+      - path: style.css
+        description: "Перевірка тільки .home-page scoped правок."
+    acceptance_criteria:
+      - "Підтверджено об'єктивно: document.documentElement.scrollWidth <= document.documentElement.clientWidth на 320/375/768/1280."
+      - "Підтверджено вимірювано: BigMen hero і блок опису мають узгоджені max-width і box-model."
+      - "Підтверджено edge-case: довгий нерозривний текст у navbar і zoom 200% не спричиняють overflow."
+      - "Підтверджено інваріанти профілів: навігація, viewport-bounded .card, відсутність horizontal overflow."
+    verification:
+      - "Code review diff на предмет глобальних селекторів без .home-page."
+      - "Перевірка box-model контракту для .site-nav + повноширинних homepage контейнерів."
+      - "Ручний smoke-check index + 3 profile pages."
+
+planning_pass: 1
+planning_history:
+  - pass: 1
+    reason: "Initial simple DAG based on explicit user objective and provided findings."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 60
+    focus_area: "homepage layout"
+    verification:
+      - "Navbar bounded in viewport"
+      - "Centered blocks in shared container"
+      - "BigMen width aligned with team description"
+      - "No profile regressions"
+    acceptance_criteria:
+      - "All three layout issues fixed"
+      - "Homepage-scope only"
+      - "No profile-page impact"
+    failure_modes:
+      - scenario: "Fix works on desktop but breaks on small mobile widths"
+        likelihood: medium
+        impact: medium
+        mitigation: "Explicit multi-viewport check before completion"
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+    test_coverage: null
+    requires_review: true
+    review_depth: standard
+    review_security_sensitive: false
