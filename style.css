@@ -230,7 +230,7 @@ body:not(.home-page) .profile-block {
 
 body:not(.home-page) {
     padding:
-        calc(28px + env(safe-area-inset-top, 0px))
+        calc(64px + env(safe-area-inset-top, 0px))
         calc(20px + env(safe-area-inset-right, 0px))
         calc(28px + env(safe-area-inset-bottom, 0px))
         calc(20px + env(safe-area-inset-left, 0px));
