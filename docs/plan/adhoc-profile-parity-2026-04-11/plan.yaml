@@ -1,0 +1,405 @@
+﻿plan_id: adhoc-profile-parity-2026-04-11
+objective: "Make all profile pages stylistically consistent with homepage patterns, add profile navbars linking to homepage and the other two members, and make light/dark theme toggle work on every page with persisted state across navigation."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 2
+  total_dependencies: 5
+  risk_score: medium
+
+tldr: |
+  Replan keeps homepage visuals isolated under .home-page while adding a page-agnostic shared nav/theme layer.
+  Scope remains minimal: shared stylesheet/script + three profile pages, with manual browser verification for cross-page theme persistence.
+  Locked constraints are derived from AGENTS.md, PRD notes, and existing page/script structure.
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Theme logic remains coupled to .home-page and does not initialize on profile pages."
+      likelihood: high
+      impact: high
+      mitigation: "Use page-agnostic DOM hooks (toggle presence + body attribute) while preserving storage key contract home-theme."
+    - scenario: "Shared nav styles leak homepage-only visuals into profiles or regress homepage overflow fixes."
+      likelihood: medium
+      impact: high
+      mitigation: "Keep homepage-only visuals in .home-page selectors and add separate shared nav/theme selectors with existing overflow guards preserved."
+    - scenario: "Profile navbar routes are incorrect due to relative path mistakes."
+      likelihood: medium
+      impact: medium
+      mitigation: "Define one route matrix and run full click-through validation from each profile page."
+  assumptions:
+    - "Homepage style isolation under .home-page must be preserved (source: AGENTS.md, docs/PRD.yaml)."
+    - "Theme persistence key remains home-theme (source: script.js)."
+    - "Project stays plain HTML/CSS/JS with one shared stylesheet style.css (source: .github/copilot-instructions.md)."
+    - "Profile conventions remain unchanged: ../style.css, ../index.html back-link text, .card and .university usage (source: .github/copilot-instructions.md, profile HTML files)."
+
+implementation_specification:
+  code_structure: "Use two layers in existing files: (1) homepage-only layer scoped under .home-page, (2) page-agnostic shared nav/theme layer for homepage + profiles. Keep markup changes localized to profile pages and minimal homepage hook alignment only if needed."
+  affected_areas:
+    - "style.css"
+    - "script.js"
+    - "Matvii_Kovalov/Kovalov.html"
+    - "Myhal_Yurii/Myhal.html"
+    - "Sviatoslav_Lylo/Sviatoslav.html"
+    - "index.html (only if shared hook alignment is required)"
+  component_details:
+    - component: "Homepage scoped visual layer"
+      responsibility: "Retain existing homepage-only styling and prevent profile regressions."
+      interfaces:
+        - ".home-page namespace remains the owner of homepage-specific visuals"
+    - component: "Shared nav/theme layer"
+      responsibility: "Provide common navbar and theme-toggle behavior/styles usable across all pages without importing homepage-only visuals."
+      interfaces:
+        - "CSS hooks: .site-nav and .home-theme-toggle-button as shared components"
+        - "JS hooks: .home-theme-toggle-button + body[data-home-theme]"
+    - component: "Profile page navigation markup"
+      responsibility: "Add navbar links to homepage and other two members on each profile page while preserving existing card/back-link conventions."
+      interfaces:
+        - "Relative links: ../index.html + two peer profile routes"
+        - "Back-link text exactly: ← Назад на головну"
+  dependencies:
+    - component: "Profile page navigation markup"
+      relationship: "Depends on shared nav/theme CSS contract and generalized script contract."
+    - component: "Shared nav/theme layer"
+      relationship: "Depends on preserving homepage scoped visual layer boundaries."
+  integration_points:
+    - "style.css: add shared nav/theme selectors outside .home-page; keep homepage-only visuals under .home-page"
+    - "script.js: initialize/apply persisted theme on any page with expected hooks"
+    - "Each profile HTML: add nav + theme toggle + script include while preserving existing profile card content and back-link convention"
+
+contracts:
+  - from_task: T1
+    to_task: T3
+    interface: "Shared CSS contract for navbar/toggle classes and explicit light/dark visual rendering on profiles without homepage-only visuals"
+    format: "Selector contract"
+  - from_task: T2
+    to_task: T3
+    interface: "Theme runtime contract: storage key home-theme, required DOM hooks (.home-theme-toggle-button + body[data-home-theme]), and toggle ARIA behavior"
+    format: "Behavior contract"
+  - from_task: T3
+    to_task: T4
+    interface: "Final profile route matrix and expected destinations"
+    format: "Navigation matrix"
+  - from_task: T2
+    to_task: T4
+    interface: "Cross-page persistence expectations for dark/light across navigation and reload"
+    format: "Manual test checklist"
+  - from_task: T4
+    to_task: T5
+    interface: "Validated outcomes and residual risks"
+    format: "Verification summary"
+
+tasks:
+  - id: T1
+    title: "Add page-agnostic shared nav/theme style layer while preserving homepage scoping"
+    description: |
+      Update style.css to introduce only the shared selectors needed for navbar + theme toggle across all pages.
+      Keep homepage-only visual rules scoped under .home-page.
+      Preserve existing homepage overflow protections (border-box and max-width strategy).
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-1", "AC-2", "AC-6"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: ["T3"]
+    context_files:
+      - path: style.css
+        description: "Shared/global + homepage-scoped style source"
+      - path: AGENTS.md
+        description: "Scoping and overflow constraints"
+      - path: docs/PRD.yaml
+        description: "Recorded homepage-scoping decision"
+    planning_pass: 2
+    planning_history:
+      - pass: 2
+        reason: "Blocking feedback requested explicit shared nav/theme layer separated from homepage-only visuals."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 1
+        estimated_lines: 120
+        focus_area: "style layer separation"
+        verification:
+          - "Inspect selector boundaries between shared rules and .home-page rules"
+          - "Check no navbar horizontal overflow at target widths"
+        acceptance_criteria:
+          - "Homepage visual rules remain under .home-page"
+          - "Profiles can consume shared navbar/toggle styles"
+          - "Overflow safeguards remain intact"
+        failure_modes:
+          - scenario: "Shared selectors unintentionally restyle profile card content"
+            likelihood: medium
+            impact: high
+            mitigation: "Limit shared scope to explicit nav/toggle selectors and avoid broad element selectors"
+        tech_stack:
+          - HTML5
+          - CSS3
+        test_coverage: null
+
+  - id: T2
+    title: "Generalize theme toggle runtime to all pages with persisted state"
+    description: |
+      Refactor script.js so it no longer depends on .home-page for initialization.
+      Keep persisted state key home-theme, apply data-home-theme to body, and preserve accessible ARIA toggle updates.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-3", "AC-4"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: ["T3"]
+    context_files:
+      - path: script.js
+        description: "Current theme init/persist logic"
+      - path: index.html
+        description: "Existing toggle hook contract"
+      - path: docs/plan/adhoc-profile-parity-2026-04-11/research_findings_profile_pages_consistency.yaml
+        description: "Current gap analysis"
+    planning_pass: 2
+    planning_history:
+      - pass: 2
+        reason: "Blocking feedback required persisted theme behavior on every page, not homepage-only."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 2
+        estimated_lines: 90
+        focus_area: "theme runtime"
+        verification:
+          - "Set dark/light and confirm state restore after reload"
+          - "Confirm ARIA label/pressed state changes correctly"
+          - "Confirm runtime requires and supports one .home-theme-toggle-button and body[data-home-theme] on each page"
+        acceptance_criteria:
+          - "Theme applies on homepage and all profiles"
+          - "State persists across navigation using home-theme"
+          - "Invalid storage values fallback to light"
+          - "Theme script relies on stable page hooks only: .home-theme-toggle-button (toggle selector) and body[data-home-theme] (theme target)"
+        failure_modes:
+          - scenario: "Script silently exits on profiles because expected hooks differ"
+            likelihood: high
+            impact: high
+            mitigation: "Bind by element presence and use body as universal theme target"
+        tech_stack:
+          - JavaScript
+          - HTML5
+        test_coverage: null
+
+  - id: T3
+    title: "Update all profile pages with navbar + toggle while preserving conventions"
+    description: |
+      Modify Matvii_Kovalov/Kovalov.html, Myhal_Yurii/Myhal.html, and Sviatoslav_Lylo/Sviatoslav.html.
+      Add navbars linking to homepage and the other two members, add theme toggle control, and load ../script.js.
+      Preserve ../style.css include, ../index.html back-link with exact text, and .card/.university usage.
+    wave: 2
+    agent: gem-implementer
+    prototype: false
+    covers: ["AC-1", "AC-2", "AC-3", "AC-5", "AC-8"]
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: ["T1", "T2"]
+    conflicts_with: []
+    context_files:
+      - path: Matvii_Kovalov/Kovalov.html
+        description: "Profile page 1"
+      - path: Myhal_Yurii/Myhal.html
+        description: "Profile page 2"
+      - path: Sviatoslav_Lylo/Sviatoslav.html
+        description: "Profile page 3"
+    planning_pass: 2
+    planning_history:
+      - pass: 2
+        reason: "Blocking feedback requested explicit navbar links on each profile and shared theme controls."
+        timestamp: "2026-04-11"
+        estimated_effort: medium
+        estimated_files: 3
+        estimated_lines: 180
+        focus_area: "profile markup parity"
+        verification:
+          - "From each profile, validate links to homepage + other two profiles"
+          - "Confirm back-link text is unchanged"
+          - "Confirm one toggle control per page"
+          - "Confirm navbar link labels and toggle label text are Ukrainian on every profile"
+        acceptance_criteria:
+          - "Each profile includes navbar with 3 required links"
+          - "Each profile loads ../script.js and has theme toggle button"
+          - "Navbar and theme-toggle visible labels are Ukrainian on each profile page"
+          - "Conventions preserved: ../style.css, ../index.html back-link text, .card and .university usage"
+        failure_modes:
+          - scenario: "Relative links are incorrect for one or more profiles"
+            likelihood: medium
+            impact: medium
+            mitigation: "Use one canonical link matrix and verify every nav item manually"
+        tech_stack:
+          - HTML5
+          - CSS3
+          - JavaScript
+        test_coverage: null
+
+  - id: T4
+    title: "Manual browser validation for navigation parity and cross-page theme persistence"
+    description: |
+      Execute manual checks across index and all three profiles for:
+      1) navbar route correctness,
+      2) theme toggle visibility/functionality,
+      3) persisted theme after navigation and full reload,
+      4) no horizontal overflow on key viewport widths.
+    wave: 3
+    agent: gem-browser-tester
+    prototype: false
+    covers: ["AC-2", "AC-3", "AC-4", "AC-6", "AC-8"]
+    priority: medium
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: ["T3"]
+    conflicts_with: []
+    context_files:
+      - path: index.html
+        description: "Homepage baseline"
+      - path: Matvii_Kovalov/Kovalov.html
+        description: "Profile validation anchor"
+      - path: Myhal_Yurii/Myhal.html
+        description: "Profile validation anchor"
+      - path: Sviatoslav_Lylo/Sviatoslav.html
+        description: "Profile validation anchor"
+    planning_pass: 2
+    planning_history:
+      - pass: 2
+        reason: "Blocking feedback requires explicit manual persistence checks across navigation."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 3
+        estimated_lines: 50
+        focus_area: "manual e2e checks"
+        verification:
+          - "Dark set on page A persists on pages B/C/D after navigation"
+          - "Dark/light both survive full reload"
+          - "No horizontal overflow at 320, 375, 768, 1280"
+          - "Navbar and theme-toggle labels remain Ukrainian on homepage and all profiles"
+        acceptance_criteria:
+          - "All navbar links resolve correctly from all pages"
+          - "Theme toggle works on every page"
+          - "Persisted theme survives cross-page navigation and reload"
+          - "Theme visual rendering is explicit and consistent: dark and light states are visibly distinct on every profile page"
+          - "Navbar and theme-toggle labels are Ukrainian on homepage and all profiles"
+          - "No responsive overflow regressions"
+        failure_modes:
+          - scenario: "Manual run misses one route-theme combination"
+            likelihood: medium
+            impact: medium
+            mitigation: "Follow fixed route matrix and log each page/theme transition explicitly"
+        validation_matrix:
+          - scenario: "Cross-page persistence: dark"
+            steps:
+              - "Set dark on homepage"
+              - "Navigate homepage -> profile A -> profile B -> profile C"
+              - "Reload each page once"
+            expected_result: "Dark remains active with correct toggle state everywhere"
+          - scenario: "Cross-page persistence: light"
+            steps:
+              - "Set light on any profile"
+              - "Navigate through the other pages"
+              - "Reload homepage"
+            expected_result: "Light remains active with correct toggle state everywhere"
+          - scenario: "Route and overflow checks"
+            steps:
+              - "Click every navbar link on each profile"
+              - "Check widths 320/375/768/1280 for horizontal scroll"
+            expected_result: "All routes valid and no horizontal overflow"
+
+  - id: T5
+    title: "Update project docs with parity decisions and validation outcomes"
+    description: |
+      Update documentation artifacts to reflect the final shared nav/theme behavior,
+      retained homepage .home-page isolation, preserved profile conventions,
+      and manual cross-page persistence validation outcomes.
+    wave: 4
+    agent: gem-documentation-writer
+    prototype: false
+    covers: ["AC-7"]
+    priority: low
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: ["T4"]
+    conflicts_with: []
+    context_files:
+      - path: docs/PRD.yaml
+        description: "Project change log"
+      - path: AGENTS.md
+        description: "Non-regression constraints"
+      - path: docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml
+        description: "Execution and acceptance record"
+    planning_pass: 2
+    planning_history:
+      - pass: 2
+        reason: "Documentation sync task retained for feature-level behavior changes."
+        timestamp: "2026-04-11"
+        estimated_effort: small
+        estimated_files: 2
+        estimated_lines: 40
+        focus_area: "docs sync"
+        verification:
+          - "Docs reflect actual behavior and constraints"
+          - "No contradiction with AGENTS and PRD"
+        acceptance_criteria:
+          - "Architecture decisions are explicitly documented"
+          - "Manual validation outcomes captured"
+        failure_modes:
+          - scenario: "Docs omit locked constraints, causing future regressions"
+            likelihood: low
+            impact: medium
+            mitigation: "Include explicit section for locked architecture decisions and preserved conventions"
+        task_type: update
+        audience: developers
+        coverage_matrix:
+          - "Shared nav/theme layer behavior"
+          - "Homepage-only .home-page visual isolation"
+          - "Profile conventions preservation"
+          - "Manual cross-page persistence checks"
+
+acceptance_criteria:
+  - id: AC-1
+    text: "Profile pages match homepage styling patterns via shared nav/theme layer without importing homepage-only visuals, with explicit dark/light visual rendering on profiles."
+  - id: AC-2
+    text: "Each profile page has navbar links to homepage and the other two members."
+  - id: AC-3
+    text: "Theme toggle exists and works on homepage and all profile pages using stable DOM hooks: .home-theme-toggle-button and body[data-home-theme]."
+  - id: AC-4
+    text: "Theme state persists across navigation and full reloads between all pages."
+  - id: AC-5
+    text: "Project conventions preserved: ../style.css, ../index.html back-link with exact text, .card and .university usage."
+  - id: AC-6
+    text: "No horizontal overflow regressions at 320/375/768/1280 viewport widths."
+  - id: AC-7
+    text: "Documentation updated to reflect locked architecture decisions and validation outcomes."
+  - id: AC-8
+    text: "Navbar and theme-toggle labels are Ukrainian on homepage and all profile pages."
+
+sources:
+  - "AGENTS.md"
+  - "docs/PRD.yaml"
+  - "script.js"
+  - "index.html"
+  - "Matvii_Kovalov/Kovalov.html"
+  - "Myhal_Yurii/Myhal.html"
+  - "Sviatoslav_Lylo/Sviatoslav.html"
+  - "docs/plan/adhoc-profile-parity-2026-04-11/research_findings_profile_pages_consistency.yaml"
+  - "/memories/repo/homepage-layout.md"
