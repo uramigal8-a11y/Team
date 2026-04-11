@@ -1,0 +1,300 @@
+plan_id: adhoc-theme-toggle-2026-04-11
+objective: "Add a CSS-only light/dark theme toggle to the homepage with default light mode, a top-right checkbox-and-label control, homepage-scoped variables, and explicit back-navigation behavior without impacting profile pages."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 0
+  risk_score: medium
+
+tldr: |
+  - Scope is homepage-only and stays within the existing static-site pattern: HTML5 and CSS3 only, with no JavaScript.
+  - The toggle should default to light mode, use a top-right accessible checkbox + label pattern, and swap a sun icon for a moon icon through CSS state only.
+  - Theme styles and variables must remain scoped under `.home-page`; no global selectors or `:root` overrides are allowed.
+  - The checkbox must stay focusable, the visible toggle must keep persistent accessible text, and keyboard focus-visible styling is required.
+  - Fresh navigation to `index.html` resets to light theme, while bfcache or history restoration may preserve the last chosen state and is acceptable.
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "The checkbox is hidden with display:none or otherwise removed from the tab order, so the theme control cannot be focused or activated by keyboard users."
+      likelihood: medium
+      impact: high
+      mitigation: "Keep the input focusable and verify tab navigation and keyboard activation before sign-off."
+    - scenario: "The checkbox + label control is visually present but lacks a clear accessible name, keyboard focus treatment, or usable hit area."
+      likelihood: medium
+      impact: high
+      mitigation: "Require a labeled control, visible focus styling, and a keyboard-check verification pass before sign-off."
+    - scenario: "Theme selectors leak outside the homepage and change profile page visuals because the shared stylesheet is reused everywhere."
+      likelihood: medium
+      impact: high
+      mitigation: "Keep all theme-specific selectors and variables under the existing `.home-page` scope and avoid changing shared profile-page class behavior."
+    - scenario: "The sun/moon icon swap or color variables are incorrect, so the default light theme or dark-state contrast is misleading."
+      likelihood: medium
+      impact: medium
+      mitigation: "Validate the default state, the checked state, and contrast in both themes against the shared palette before finalizing."
+    - scenario: "The toggle placement overlaps content or becomes hard to use on smaller screens."
+      likelihood: low
+      impact: medium
+      mitigation: "Place the control in the homepage header area with responsive positioning and verify it at narrow widths."
+  assumptions:
+    - "Fresh navigation to index.html must start in light mode because there is no JavaScript-based persistence."
+    - "bfcache or history restoration may preserve the last chosen state and that behavior is acceptable."
+    - "A full reload resets the homepage theme back to light mode."
+    - "The checkbox/label pattern can carry both the interactive control and the icon swap without adding new files."
+    - "Profile pages remain unchanged except for inheriting the existing shared stylesheet as they do now."
+
+implementation_specification:
+  code_structure: "Keep the change set to index.html and style.css only; render the toggle as an accessible checkbox + label in the homepage header, keep the input focusable and visibly styled on focus-visible, and use homepage-scoped CSS state selectors and variables under `.home-page` to drive the light/dark palettes and icon visibility."
+  affected_areas:
+    - "index.html"
+    - "style.css"
+  component_details:
+    - component: "Homepage theme control"
+      responsibility: "Provide the accessible checkbox, persistent visible text label, and top-right placement needed to switch the homepage between light and dark modes without JavaScript while keeping the input in the tab order."
+      interfaces:
+        - "Homepage-only checkbox control in the top-right corner"
+        - "Label text/icon pair that exposes a clear accessible name and remains visible"
+        - "Checkbox state used by CSS selectors to switch themes"
+        - "Focusable input that is not hidden with display:none"
+    - component: "Homepage theme styling"
+      responsibility: "Provide light and dark color palettes, toggle appearance, focus-visible states, and layout-safe positioning without affecting profile pages."
+      interfaces:
+        - "CSS rules scoped under `.home-page`"
+        - "Theme-specific variables or selectors that do not use `:root` or global overrides"
+        - "Visible focus-visible styling for keyboard users"
+    - component: "Existing homepage content shell"
+      responsibility: "Preserve the current hero, profile links, and team description cards while accommodating the new control."
+      interfaces:
+        - "Existing homepage structure and relative profile links"
+        - "Ukrainian visible copy already present in the homepage"
+  dependencies:
+    - component: "Homepage theme control"
+      relationship: "Provides the checked state that the styling layer reads."
+    - component: "Homepage theme styling"
+      relationship: "Consumes the state set by the control."
+    - component: "Existing homepage content shell"
+      relationship: "Uses the same layout and link structure, with only a small control added."
+  integration_points:
+    - "The toggle is added to the homepage itself, not to profile pages."
+    - "The shared style.css continues to serve both homepage and profile pages, but theme rules and variables are isolated to `.home-page`."
+    - "No navigation targets in the existing homepage link list should change."
+    - "The control must keep its accessible name, focus-visible styling, and tab focus behavior intact in both theme states."
+    - "Fresh loads of index.html default to light theme, while restored history entries may retain their prior checked state."
+
+contracts: []
+
+tasks:
+  - id: T1
+    title: "Add homepage light/dark toggle with CSS-only state"
+    description: |
+      Update the homepage to include a top-right accessible checkbox + label toggle, default to light mode,
+        and switch the visible icon between sun and moon states through CSS alone.
+        Keep the checkbox focusable, keep the visible toggle text present at all times, avoid display:none hiding of the input,
+        and preserve the current layout, relative profile links, and Ukrainian visible text.
+        Keep all theme styling and variables scoped under `.home-page` with no `:root` or global theme overrides.
+        Explicitly validate keyboard focus-visible styling, accessible name, contrast, and fresh-load versus history-restoration behavior.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "Homepage defaults to light theme on first visit"
+      - "Fresh navigation to index.html resets the homepage to light theme"
+      - "History restoration or bfcache may preserve the last chosen theme state"
+      - "Top-right accessible checkbox + label toggle switches between sun and moon icon states"
+      - "No JavaScript is used"
+      - "Homepage layout and profile links remain unchanged"
+      - "Profile pages remain unaffected"
+      - "Visible text stays Ukrainian"
+      - "The checkbox remains focusable, the visible toggle has persistent accessible text, and focus-visible styling is present"
+      - "No input is hidden with display:none"
+      - "No global selectors or :root theme overrides are used"
+      - "All theme variables remain under .home-page"
+      - "Keyboard focus, accessible name, and contrast are verified"
+    priority: high
+    status: pending
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: index.html
+        description: "Homepage markup and the insertion point for the checkbox + label control."
+      - path: style.css
+        description: "Shared stylesheet where homepage-scoped light/dark theme rules should live."
+    verification:
+      - "Open the homepage in a fresh browser session and confirm it starts in light mode."
+      - "Open index.html via a fresh navigation and confirm the theme resets to light."
+      - "Use browser back/forward or bfcache restoration and confirm a prior checked state may be preserved."
+      - "Tab to the control, confirm the focus ring is visible, and activate it with the keyboard."
+      - "Confirm the label exposes a clear accessible name for the checkbox."
+      - "Confirm the input remains focusable and is not hidden with display:none."
+      - "Switch to dark mode and confirm the icon changes from sun to moon using CSS only."
+      - "Inspect the stylesheet and confirm no global selectors or :root theme overrides are used."
+      - "Confirm all theme variables are scoped under .home-page."
+      - "Check light and dark contrast manually against the page palette."
+      - "Open each profile page directly and confirm layout and styling are unchanged."
+      - "Check that the homepage still shows the existing profile links and Ukrainian visible text."
+    acceptance_criteria:
+      - "Homepage defaults to light theme on first visit."
+      - "Fresh navigation to index.html defaults to light theme, while bfcache or history restoration may preserve the last selected state."
+      - "A top-right accessible checkbox + label control is present and swaps sun/moon icon states with the theme."
+      - "No JavaScript is used for the toggle behavior."
+      - "Existing homepage layout and profile links remain intact."
+      - "Profile pages are unaffected."
+      - "Visible text remains Ukrainian."
+      - "The toggle remains focusable, has persistent visible accessible text, and includes focus-visible styling."
+      - "The input is not hidden with display:none."
+      - "No global selectors or :root theme overrides are used, and all theme variables stay under .home-page."
+      - "The toggle has a keyboard-visible focus state, a clear accessible name, and acceptable contrast in both theme states."
+
+
+planning_pass: 3
+planning_history:
+  - pass: 1
+    reason: "Initial plan for a homepage-only light/dark theme toggle with minimal file changes."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 160
+    focus_area: homepage
+    verification:
+      - "Confirm the homepage loads in light mode before any interaction."
+      - "Confirm the top-right toggle changes both theme and icon state."
+      - "Confirm profile pages still render as before when opened directly."
+    acceptance_criteria:
+      - "Theme toggle is homepage-only and does not alter profile-page behavior."
+      - "Default theme is light on first visit, with optional persistence if JS is used."
+      - "No extra files are required unless inline JS is not sufficient."
+    failure_modes:
+      - scenario: "Theme changes leak into profile pages because selectors are not sufficiently scoped."
+        likelihood: medium
+        impact: high
+        mitigation: "Keep all theme selectors under `.home-page` and verify profile pages directly after the change."
+      - scenario: "The button works visually but does not preserve the chosen theme after reload."
+        likelihood: medium
+        impact: medium
+        mitigation: "Store the selection in browser storage and apply it before the page fully renders."
+      - scenario: "The toggle placement disrupts the existing hero layout on smaller screens."
+        likelihood: low
+        impact: medium
+        mitigation: "Use responsive positioning and verify at mobile widths."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+      - "Vanilla JavaScript"
+    test_coverage: "Manual browser validation only."
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Homepage default theme behavior"
+      - "Toggle icon and theme swap behavior"
+      - "Profile-page non-regression"
+      - "Accessibility checks for keyboard focus, accessible name, and contrast"
+  - pass: 2
+    reason: "Revised plan to remove JavaScript entirely and enforce a CSS-only checkbox + label toggle with explicit accessibility checks."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 220
+    focus_area: homepage
+    verification:
+      - "Confirm the homepage loads in light mode before any interaction."
+      - "Confirm the checkbox and label are keyboard-operable and visibly focused."
+      - "Confirm the sun/moon icon swap is driven by CSS only."
+      - "Confirm profile pages remain unchanged when opened directly."
+    acceptance_criteria:
+      - "Theme toggle is homepage-only and does not alter profile-page behavior."
+      - "Default theme is light on first visit with no JavaScript."
+      - "Accessibility checks cover keyboard focus, accessible name, and contrast."
+      - "Implementation remains limited to index.html and style.css only."
+    failure_modes:
+      - scenario: "The checkbox/label control is visually present but lacks a clear accessible name or focus state."
+        likelihood: medium
+        impact: high
+        mitigation: "Verify label association, keyboard focus visibility, and hit area before sign-off."
+      - scenario: "Theme changes leak into profile pages because selectors are not sufficiently scoped."
+        likelihood: medium
+        impact: high
+        mitigation: "Keep all theme selectors under `.home-page` and verify profile pages directly after the change."
+      - scenario: "The sun/moon icon swap or color variables are incorrect, so the default light theme or dark-state contrast is misleading."
+        likelihood: medium
+        impact: medium
+        mitigation: "Validate the default state, the checked state, and contrast in both themes against the shared palette before finalizing."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+    test_coverage: "Manual browser validation only."
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Homepage default theme behavior"
+      - "Toggle icon and theme swap behavior"
+      - "Profile-page non-regression"
+      - "Accessibility checks for keyboard focus, accessible name, and contrast"
+  - pass: 3
+    reason: "Added explicit requirements for focusability, persistent visible label text, focus-visible styling, scoped variables, and back-navigation behavior."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 2
+    estimated_lines: 260
+    focus_area: homepage
+    verification:
+      - "Confirm a fresh navigation to index.html always starts in light mode."
+      - "Confirm bfcache or history restoration may preserve the prior state and that this is acceptable."
+      - "Confirm the checkbox remains focusable, the label text stays visible, and focus-visible styling is present."
+      - "Confirm no global selectors or :root theme overrides are used."
+    acceptance_criteria:
+      - "The toggle remains CSS-only and homepage-scoped."
+      - "The checkbox remains in the tab order and is not hidden with display:none."
+      - "The visible toggle has persistent accessible text and focus-visible styling."
+      - "Fresh navigation resets to light, while bfcache/history restoration may preserve the last chosen state."
+      - "All theme variables remain under .home-page, with no global selectors or :root overrides."
+    failure_modes:
+      - scenario: "The control is present but not actually focusable because it is hidden or removed from the tab order."
+        likelihood: medium
+        impact: high
+        mitigation: "Verify tab order and keyboard activation explicitly, and reject any solution that uses display:none on the input."
+      - scenario: "Theme state becomes ambiguous across fresh loads versus history restoration."
+        likelihood: medium
+        impact: medium
+        mitigation: "Define the reset behavior for fresh navigation and accept bfcache/history preservation only as a restored-state case."
+      - scenario: "Theme variables leak outside the homepage through global selectors or :root overrides."
+        likelihood: medium
+        impact: high
+        mitigation: "Keep all selectors and variables under `.home-page` and inspect the stylesheet for leakage before approval."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+    test_coverage: "Manual browser validation only."
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Fresh navigation versus restored navigation behavior"
+      - "Focusable checkbox and persistent visible label text"
+      - "Focus-visible styling and accessible name checks"
+      - "Homepage-scoped theming with no global overrides"
