@@ -12,7 +12,7 @@
 - `index.html` is the main page with the team list and links to profile pages.
 - Profile pages are stored as `FirstName_LastName/Name.html`.
 - Shared assets are in `Foto/`; profile pages load them via `../Foto/<filename>`.
-- Shared layout/styling patterns live in `style.css`, especially classes `.card`, `.profile-photo`, `.team-list`, and `.university`.
+- Shared layout/styling patterns live in `style.css`, especially classes `.card`, `.profile-photo`, and `.university`.
 
 ## Build And Test
 
@@ -41,5 +41,5 @@
 2. Create `FirstName_LastName/Name.html` from an existing profile pattern.
 3. Ensure profile page uses `../style.css`, `../Foto/<filename>`, `.card`, and `.university` where applicable.
 4. Ensure profile page keeps `body[data-home-theme]`, one `.home-theme-toggle-button`, and `main.profile-main` with 4 blocks.
-5. Add new `<li>` entry to `index.html` inside `.team-list` linking to the new profile.
+5. Add new `<a>` entry to `<nav class="site-nav">` in `index.html` linking to the new profile.
 6. Verify navigation and layout in browser.
