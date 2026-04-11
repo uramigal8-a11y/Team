@@ -236,7 +236,7 @@ body:not(.home-page) .profile-main {
     max-width: 1080px;
     margin: 0 auto;
     display: grid;
-    gap: 16px;
+    gap: 20px;
 }
 
 body:not(.home-page) .profile-block {
@@ -245,6 +245,19 @@ body:not(.home-page) .profile-block {
     max-width: 1080px;
     box-sizing: border-box;
     text-align: left;
+    padding: 24px;
+}
+
+body:not(.home-page) .site-nav {
+    margin-top: 0;
+}
+
+body:not(.home-page) {
+    padding:
+        calc(28px + env(safe-area-inset-top, 0px))
+        calc(20px + env(safe-area-inset-right, 0px))
+        calc(28px + env(safe-area-inset-bottom, 0px))
+        calc(20px + env(safe-area-inset-left, 0px));
 }
 
 body:not(.home-page) .profile-intro {
@@ -337,6 +350,7 @@ body:not(.home-page) .university {
     box-shadow: var(--home-shadow);
     border-radius: 18px;
     padding: 24px;
+    text-align: center;
 }
 
 .home-page .home-cells {
