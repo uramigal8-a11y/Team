@@ -2,7 +2,7 @@
 objective: "Make all profile pages stylistically consistent with homepage patterns, add profile navbars linking to homepage and the other two members, and make light/dark theme toggle work on every page with persisted state across navigation."
 created_at: "2026-04-11"
 created_by: gem-planner
-status: pending
+status: completed
 research_confidence: high
 
 plan_metrics:
@@ -36,7 +36,7 @@ pre_mortem:
     - "Homepage style isolation under .home-page must be preserved (source: AGENTS.md, docs/PRD.yaml)."
     - "Theme persistence key remains home-theme (source: script.js)."
     - "Project stays plain HTML/CSS/JS with one shared stylesheet style.css (source: .github/copilot-instructions.md)."
-    - "Profile conventions remain unchanged: ../style.css, ../index.html back-link text, .card and .university usage (source: .github/copilot-instructions.md, profile HTML files)."
+    - "Profile conventions remain unchanged: ../style.css plus .card and .university usage; no mandatory content back-link is required (source: .github/copilot-instructions.md, docs/PRD.yaml, profile HTML files)."
 
 implementation_specification:
   code_structure: "Use two layers in existing files: (1) homepage-only layer scoped under .home-page, (2) page-agnostic shared nav/theme layer for homepage + profiles. Keep markup changes localized to profile pages and minimal homepage hook alignment only if needed."
@@ -58,10 +58,10 @@ implementation_specification:
         - "CSS hooks: .site-nav and .home-theme-toggle-button as shared components"
         - "JS hooks: .home-theme-toggle-button + body[data-home-theme]"
     - component: "Profile page navigation markup"
-      responsibility: "Add navbar links to homepage and other two members on each profile page while preserving existing card/back-link conventions."
+      responsibility: "Add navbar links to homepage and other two members on each profile page while preserving existing card conventions."
       interfaces:
         - "Relative links: ../index.html + two peer profile routes"
-        - "Back-link text exactly: ← Назад на головну"
+        - "No mandatory profile-content back-link; navbar links provide homepage/member navigation"
   dependencies:
     - component: "Profile page navigation markup"
       relationship: "Depends on shared nav/theme CSS contract and generalized script contract."
@@ -70,7 +70,7 @@ implementation_specification:
   integration_points:
     - "style.css: add shared nav/theme selectors outside .home-page; keep homepage-only visuals under .home-page"
     - "script.js: initialize/apply persisted theme on any page with expected hooks"
-    - "Each profile HTML: add nav + theme toggle + script include while preserving existing profile card content and back-link convention"
+    - "Each profile HTML: add nav + theme toggle + script include while preserving existing profile card content conventions"
 
 contracts:
   - from_task: T1
@@ -106,7 +106,7 @@ tasks:
     prototype: false
     covers: ["AC-1", "AC-2", "AC-6"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -155,7 +155,7 @@ tasks:
     prototype: false
     covers: ["AC-3", "AC-4"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -201,13 +201,13 @@ tasks:
     description: |
       Modify Matvii_Kovalov/Kovalov.html, Myhal_Yurii/Myhal.html, and Sviatoslav_Lylo/Sviatoslav.html.
       Add navbars linking to homepage and the other two members, add theme toggle control, and load ../script.js.
-      Preserve ../style.css include, ../index.html back-link with exact text, and .card/.university usage.
+      Preserve ../style.css include and .card/.university usage.
     wave: 2
     agent: gem-implementer
     prototype: false
     covers: ["AC-1", "AC-2", "AC-3", "AC-5", "AC-8"]
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -231,14 +231,13 @@ tasks:
         focus_area: "profile markup parity"
         verification:
           - "From each profile, validate links to homepage + other two profiles"
-          - "Confirm back-link text is unchanged"
           - "Confirm one toggle control per page"
           - "Confirm navbar link labels and toggle label text are Ukrainian on every profile"
         acceptance_criteria:
           - "Each profile includes navbar with 3 required links"
           - "Each profile loads ../script.js and has theme toggle button"
           - "Navbar and theme-toggle visible labels are Ukrainian on each profile page"
-          - "Conventions preserved: ../style.css, ../index.html back-link text, .card and .university usage"
+          - "Conventions preserved: ../style.css, .card and .university usage"
         failure_modes:
           - scenario: "Relative links are incorrect for one or more profiles"
             likelihood: medium
@@ -263,7 +262,7 @@ tasks:
     prototype: false
     covers: ["AC-2", "AC-3", "AC-4", "AC-6", "AC-8"]
     priority: medium
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -334,7 +333,7 @@ tasks:
     prototype: false
     covers: ["AC-7"]
     priority: low
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0
@@ -385,7 +384,7 @@ acceptance_criteria:
   - id: AC-4
     text: "Theme state persists across navigation and full reloads between all pages."
   - id: AC-5
-    text: "Project conventions preserved: ../style.css, ../index.html back-link with exact text, .card and .university usage."
+    text: "Project conventions preserved: ../style.css, .card and .university usage; no mandatory profile-content back-link requirement."
   - id: AC-6
     text: "No horizontal overflow regressions at 320/375/768/1280 viewport widths."
   - id: AC-7

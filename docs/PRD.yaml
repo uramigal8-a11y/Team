@@ -11,7 +11,7 @@ features:
   - id: homepage-team-description-cells
     status: completed
     completed_on: "2026-04-11"
-    scope: "Added descriptive team cells on homepage, including one placeholder cell"
+    scope: "Added descriptive team cells on homepage with filled content in all cells"
 
   - id: layout-fix-center-navbar-bigmen
     status: completed
@@ -30,7 +30,8 @@ decisions:
     decision: "Theme runtime is page-agnostic and keyed by home-theme; each page must expose body[data-home-theme] and one .home-theme-toggle-button."
 
 notes:
-  - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
+  - "Homepage-specific layout rules are scoped under .home-page; global base styles (body, .card, body[data-home-theme] tokens) apply across all pages."
+  - "Profile pages follow one semantic 4-block contract inside main.profile-main and do not include mandatory back-link anchors."
 
 change_log:
   - date: "2026-04-11"
@@ -42,3 +43,6 @@ change_log:
   - date: "2026-04-11"
     type: minimal
     entry: "Marked profile-parity completion: profile navbars added and theme persistence generalized across homepage and profile pages."
+  - date: "2026-04-11"
+    type: minimal
+    entry: "Recorded participant block rework: profile nav width aligned to homepage contract, toggle moved to top-right on profile pages, and legacy back-link convention removed."

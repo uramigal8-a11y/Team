@@ -1,8 +1,8 @@
 plan_id: adhoc-index-modernization-2026-04-11
-objective: "Update index.html homepage to a modern black-and-white style and add team description cells/placeholders."
+objective: "Update index.html homepage to a modern black-and-white style and add filled team description cells."
 created_at: "2026-04-11"
 created_by: gem-planner
-status: pending
+status: completed
 research_confidence: high
 
 plan_metrics:
@@ -33,7 +33,7 @@ pre_mortem:
       impact: medium
       mitigation: "Use resilient wrapping and min-width responsive rules; verify layout at 320px viewport."
   assumptions:
-    - "No PRD file is present; user request is the source of scope and acceptance (source: workspace file search)."
+    - "PRD file exists at docs/PRD.yaml and is the canonical source for delivered status and constraints (source: docs/PRD.yaml)."
     - "No JavaScript or build tooling is allowed; implementation is static HTML/CSS only (source: .github/copilot-instructions.md; /memories/repo/team-site.md)."
 
 implementation_specification:
@@ -44,7 +44,7 @@ implementation_specification:
     - "docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml"
   component_details:
     - component: "Homepage content structure"
-      responsibility: "Represent modern monochrome hero/introduction plus team description cells/placeholders with accessible headings and concise Ukrainian copy."
+      responsibility: "Represent modern monochrome hero/introduction plus filled team description cells with accessible headings and concise Ukrainian copy."
       interfaces:
         - "Existing homepage profile href values remain byte-identical: Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html (source: index.html)."
     - component: "Scoped homepage styling in shared stylesheet"
@@ -75,19 +75,19 @@ tasks:
     title: "Implement monochrome homepage refresh with team description cells"
     description: |
       Update homepage markup and shared stylesheet to deliver a modern black-and-white landing section,
-      preserving existing member profile links and introducing team description cells/placeholders in Ukrainian.
+      preserving existing member profile links and introducing filled team description cells in Ukrainian.
       Scope style changes to homepage-specific selectors so profile pages keep their current behavior.
     wave: 1
     agent: gem-implementer
     prototype: false
     covers:
       - "AC-1 monochrome modern homepage visual"
-      - "AC-2 team description cells/placeholders added"
+      - "AC-2 filled team description cells added"
       - "AC-3 profile links remain functional"
       - "AC-4 shared style.css reused; no JS"
       - "AC-5 profile-page class behavior preserved"
     priority: high
-    status: pending
+    status: completed
     estimated_lines: 220
     verification:
       - "Open homepage at desktop and 320px width; verify no horizontal overflow and readable card/cell layout."
@@ -97,7 +97,7 @@ tasks:
       - "Open all profile pages directly and verify shared classes (.card, .profile-photo, .university, .team-list) are not regressed."
     acceptance_criteria:
       - "Homepage has modern monochrome styling implemented with HTML+CSS only in existing files."
-      - "Team description cells/placeholders are present with Ukrainian text."
+      - "Filled team description cells are present with Ukrainian text."
       - "Existing homepage profile href values remain unchanged exactly: Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html."
       - "Layout remains usable at 320px viewport and with long member names."
       - "Keyboard focus is clearly visible with sufficient monochrome contrast."
@@ -123,7 +123,7 @@ tasks:
     covers:
       - "AC-6 documentation synchronized with implemented homepage changes"
     priority: low
-    status: pending
+    status: completed
     estimated_lines: 40
     verification:
       - "Check note is <= 10 lines, references only implemented changes, and avoids duplicating plan content."
@@ -160,7 +160,7 @@ planning_history:
       - "Open each profile page directly and verify .card/.profile-photo/.university visuals are not regressed."
     acceptance_criteria:
       - "Homepage uses modern black-and-white style implemented via HTML+CSS only."
-      - "Team description cells/placeholders are present on homepage in Ukrainian."
+      - "Filled team description cells are present on homepage in Ukrainian."
       - "Existing profile links from homepage remain unchanged and functional."
       - "All styling remains in shared style.css; no per-page CSS or JS added."
       - "Shared classes used by profile pages are not broken by homepage updates."

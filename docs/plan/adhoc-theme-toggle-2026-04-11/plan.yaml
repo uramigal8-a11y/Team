@@ -2,7 +2,7 @@ plan_id: adhoc-theme-toggle-2026-04-11
 objective: "Add a CSS-only light/dark theme toggle to the homepage with default light mode, a top-right checkbox-and-label control, homepage-scoped variables, and explicit back-navigation behavior without impacting profile pages."
 created_at: "2026-04-11"
 created_by: gem-planner
-status: pending
+status: completed
 research_confidence: high
 
 plan_metrics:
@@ -43,11 +43,11 @@ pre_mortem:
       impact: medium
       mitigation: "Place the control in the homepage header area with responsive positioning and verify it at narrow widths."
   assumptions:
-    - "Fresh navigation to index.html must start in light mode because there is no JavaScript-based persistence."
+    - "Theme behavior is JavaScript-driven via shared runtime in script.js, with CSS handling visual state."
+    - "Theme contract is cross-page: body[data-home-theme] plus one .home-theme-toggle-button per page."
+    - "Theme preference persists with localStorage key home-theme and strict light|dark validation."
     - "bfcache or history restoration may preserve the last chosen state and that behavior is acceptable."
-    - "A full reload resets the homepage theme back to light mode."
-    - "The checkbox/label pattern can carry both the interactive control and the icon swap without adding new files."
-    - "Profile pages remain unchanged except for inheriting the existing shared stylesheet as they do now."
+    - "Profile pages participate in the same shared theme contract while keeping existing profile content/layout conventions."
 
 implementation_specification:
   code_structure: "Keep the change set to index.html and style.css only; render the toggle as an accessible checkbox + label in the homepage header, keep the input focusable and visibly styled on focus-visible, and use homepage-scoped CSS state selectors and variables under `.home-page` to drive the light/dark palettes and icon visibility."
@@ -117,7 +117,7 @@ tasks:
       - "All theme variables remain under .home-page"
       - "Keyboard focus, accessible name, and contrast are verified"
     priority: high
-    status: pending
+    status: completed
     flags:
       flaky: false
       retries_used: 0

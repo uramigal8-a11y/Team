@@ -1,0 +1,470 @@
+plan_id: adhoc-full-project-audit-2026-04-11
+objective: "Full project audit for homepage/profile parity, theme contract, navbar contract, profile 4-block structure, and docs consistency"
+focus_area: full_workspace
+created_at: "2026-04-11"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - Runtime contracts are implemented correctly in code: one theme toggle per page, body[data-home-theme], shared navbar, and 4 ordered profile blocks are present on all three profile pages.
+  - Main inconsistencies are documentation/plan drift: PRD is marked completed while all plan.yaml files remain pending; several plan artifacts assert outdated assumptions (missing PRD, mandatory back-link) that conflict with current code and PRD.
+  - CSS contains low-risk dead tokens (custom properties defined but never consumed) and one likely mobile UX issue (large right padding on profile pages at <=480px).
+  - Minimal safe alignment work is mostly documentation updates plus one small CSS mobile padding correction.
+
+research_metadata:
+  methodology: "Hybrid retrieval using read_file + grep_search across required files, relationship checks between AGENTS/PRD/contracts and runtime HTML/CSS/JS, and targeted evidence extraction by line."
+  scope: "All requested files: index.html, style.css, script.js, 3 profile pages, AGENTS.md, docs/PRD.yaml, and current plan files under docs/plan/**/plan.yaml plus obvious contradictory notes."
+  confidence: high
+  coverage: 96
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: index.html
+  path: index.html
+  purpose: Homepage structure, nav links, and theme-toggle contract root on home page.
+  key_elements:
+  - element: body.home-page[data-home-theme]
+    type: pattern
+    location: index.html:9
+    description: Home page contract root for theme runtime and scoped styles.
+  - element: .home-theme-toggle-button
+    type: pattern
+    location: index.html:10
+    description: Single theme control present on homepage.
+  - element: nav.site-nav
+    type: pattern
+    location: index.html:14
+    description: Shared navbar contract used for cross-page parity.
+  language: HTML
+  lines: 53
+
+- file: style.css
+  path: style.css
+  purpose: Shared visual system and layout contracts for homepage and profile pages.
+  key_elements:
+  - element: body[data-home-theme] tokens
+    type: pattern
+    location: style.css:2
+    description: Theme variables for light/dark across pages.
+  - element: .site-nav contract
+    type: pattern
+    location: style.css:130
+    description: Shared navbar sizing and overflow behavior.
+  - element: profile 4-block layout selectors
+    type: pattern
+    location: style.css:234
+    description: Profile page structure/layout contract styles.
+  - element: mobile profile padding override
+    type: pattern
+    location: style.css:367
+    description: Mobile-specific padding for non-home pages.
+  language: CSS
+  lines: 393
+
+- file: script.js
+  path: script.js
+  purpose: Theme toggle runtime and persistence.
+  key_elements:
+  - element: storageKey = home-theme
+    type: variable
+    location: script.js:4
+    description: Shared persistence key used by all pages.
+  - element: contract guard (data-home-theme + toggle existence)
+    type: pattern
+    location: script.js:6
+    description: Runtime activates only when both required DOM hooks exist.
+  - element: applyTheme
+    type: function
+    location: script.js:34
+    description: Updates body attribute and ARIA state.
+  language: JavaScript
+  lines: 49
+
+- file: Myhal.html
+  path: Myhal_Yurii/Myhal.html
+  purpose: Profile page parity reference.
+  key_elements:
+  - element: main.profile-main with 4 sections
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:22
+    description: Required semantic block contract implemented.
+  - element: .home-theme-toggle-button
+    type: pattern
+    location: Myhal_Yurii/Myhal.html:11
+    description: Exactly one toggle control present.
+  language: HTML
+  lines: 54
+
+- file: Kovalov.html
+  path: Matvii_Kovalov/Kovalov.html
+  purpose: Profile page parity reference.
+  key_elements:
+  - element: main.profile-main with 4 sections
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:22
+    description: Required semantic block contract implemented.
+  - element: .home-theme-toggle-button
+    type: pattern
+    location: Matvii_Kovalov/Kovalov.html:11
+    description: Exactly one toggle control present.
+  language: HTML
+  lines: 54
+
+- file: Sviatoslav.html
+  path: Sviatoslav_Lylo/Sviatoslav.html
+  purpose: Profile page parity reference.
+  key_elements:
+  - element: main.profile-main with 4 sections
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:22
+    description: Required semantic block contract implemented.
+  - element: .home-theme-toggle-button
+    type: pattern
+    location: Sviatoslav_Lylo/Sviatoslav.html:11
+    description: Exactly one toggle control present.
+  language: HTML
+  lines: 54
+
+- file: AGENTS.md
+  path: AGENTS.md
+  purpose: Repository convention ledger.
+  key_elements:
+  - element: homepage scoping statement
+    type: pattern
+    location: AGENTS.md:3
+    description: States homepage styles are scoped under .home-page.
+  - element: theme contract statement
+    type: pattern
+    location: AGENTS.md:6
+    description: Requires body[data-home-theme] and one toggle per page.
+  language: Markdown
+  lines: 8
+
+- file: PRD.yaml
+  path: docs/PRD.yaml
+  purpose: Canonical delivery status and architectural decisions.
+  key_elements:
+  - element: status completed
+    type: variable
+    location: docs/PRD.yaml:3
+    description: PRD marks project modernization features complete.
+  - element: no mandatory back-link decision
+    type: pattern
+    location: docs/PRD.yaml:34
+    description: Defines current profile-page contract.
+  language: YAML
+  lines: 43
+
+- file: plan.yaml set
+  path: docs/plan/**/plan.yaml
+  purpose: Historical execution plans checked for obvious inconsistencies.
+  key_elements:
+  - element: status pending in all plan files
+    type: pattern
+    location: docs/plan/*/plan.yaml:5
+    description: Plan status values conflict with completed PRD state.
+  - element: outdated assumption "No PRD file is present"
+    type: pattern
+    location: docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml:36
+    description: Contradicts existing docs/PRD.yaml.
+  language: YAML
+  lines: 300+
+
+patterns_found:
+- category: architecture
+  pattern: "Theme runtime contract is implemented consistently across all runtime pages."
+  description: "Each page exposes body[data-home-theme] and exactly one .home-theme-toggle-button; script.js binds to these hooks."
+  examples:
+  - file: script.js
+    location: script.js:6
+    snippet: "if (!themeTarget || !themeTarget.hasAttribute('data-home-theme') || !toggleButton) { return; }"
+  - file: index.html
+    location: index.html:9
+    snippet: "<body class=\"home-page\" data-home-theme=\"light\">"
+  - file: Myhal_Yurii/Myhal.html
+    location: Myhal_Yurii/Myhal.html:11
+    snippet: "<button type=\"button\" class=\"home-theme-toggle-button\" ...>"
+  prevalence: common
+
+- category: structure
+  pattern: "Profile 4-block semantic contract is implemented on all three profile pages."
+  description: "All profiles have main.profile-main and ordered sections: intro, study-place, study-focus, signature."
+  examples:
+  - file: Matvii_Kovalov/Kovalov.html
+    location: Matvii_Kovalov/Kovalov.html:22
+    snippet: "<main class=\"profile-main\" ...>"
+  - file: Sviatoslav_Lylo/Sviatoslav.html
+    location: Sviatoslav_Lylo/Sviatoslav.html:45
+    snippet: "<section class=\"card profile-block profile-signature\" ...>"
+  prevalence: common
+
+- category: structure
+  pattern: "Plan/status drift between PRD and plan files."
+  description: "PRD indicates completed status while all current plan.yaml files are still pending."
+  examples:
+  - file: docs/PRD.yaml
+    location: docs/PRD.yaml:3
+    snippet: "status: completed"
+  - file: docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml
+    location: docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml:5
+    snippet: "status: pending"
+  prevalence: common
+
+- category: naming
+  pattern: "Generic page-title reuse across all profile pages."
+  description: "All profile pages use identical <title> text, reducing tab-level distinction."
+  examples:
+  - file: Myhal_Yurii/Myhal.html
+    location: Myhal_Yurii/Myhal.html:6
+    snippet: "<title>Мій Профіль</title>"
+  - file: Matvii_Kovalov/Kovalov.html
+    location: Matvii_Kovalov/Kovalov.html:6
+    snippet: "<title>Мій Профіль</title>"
+  prevalence: common
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: theme runtime
+    responsibility: Applies light/dark mode and persists selected state.
+    location: script.js
+    relationship_to_domain: domain depends on this
+  - component: shared stylesheet contracts
+    responsibility: Shared nav/theme/profile layout across pages.
+    location: style.css
+    relationship_to_domain: domain depends on this
+  - component: profile pages
+    responsibility: Provide participant content with required semantic blocks.
+    location: "Myhal_Yurii/, Matvii_Kovalov/, Sviatoslav_Lylo/"
+    relationship_to_domain: this uses domain outputs
+  interfaces_used_by_domain:
+  - interface: body[data-home-theme]
+    location: index.html:9
+    usage_pattern: Required runtime hook for theme state.
+  - interface: .home-theme-toggle-button
+    location: index.html:10
+    usage_pattern: Required runtime hook for interaction and ARIA state.
+  - interface: .site-nav
+    location: style.css:130
+    usage_pattern: Shared navbar layout contract across pages.
+  data_flow_involving_domain: "Click on .home-theme-toggle-button -> script.js toggles currentTheme -> body[data-home-theme] updated -> CSS variables and dark selectors apply -> localStorage('home-theme') persists selection."
+  key_relationships_to_domain:
+  - from: script.js
+    to: index.html and profile html pages
+    relationship: uses
+  - from: style.css
+    to: all html pages
+    relationship: styles
+  - from: docs/PRD.yaml
+    to: docs/plan/*/plan.yaml
+    relationship: should align status/contract but currently diverges
+
+related_technology_stack:
+  languages_used_in_domain:
+  - HTML5
+  - CSS3
+  - JavaScript (vanilla)
+  - YAML/Markdown (documentation)
+  frameworks_used_in_domain: []
+  libraries_used_in_domain: []
+  external_apis_used_in_domain: []
+
+related_conventions:
+  naming_patterns_in_domain: "Kebab-case CSS classes; directory per participant; profile pages currently have generic title text despite distinct identities."
+  structure_of_domain: "Homepage + three profile pages with shared style.css and shared script.js theme runtime."
+  error_handling_in_domain: "script.js guards localStorage with try/catch and normalizes invalid values to light theme."
+  testing_in_domain: "Manual browser verification only (no automated build/test)."
+  documentation_in_domain: "AGENTS.md + docs/PRD.yaml act as active contract docs; docs/plan contains historical planning artifacts."
+
+related_dependencies:
+  internal:
+  - component: style.css
+    relationship_to_domain: Shared dependency for all page rendering and parity.
+    direction: inbound
+  - component: script.js
+    relationship_to_domain: Shared dependency for page-level theme behavior.
+    direction: inbound
+  - component: docs/PRD.yaml
+    relationship_to_domain: Canonical status and contract source.
+    direction: inbound
+  external: []
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "None"
+  authorization_patterns_in_domain: "None"
+  data_validation_in_domain: "Theme value normalization in script.js limits accepted values to light/dark before applying or persisting."
+
+testing_patterns:
+  framework: none
+  coverage_areas:
+  - Homepage render and nav links
+  - Profile-page structure parity
+  - Theme toggle persistence and ARIA updates
+  test_organization: "Ad hoc manual checks"
+  mock_patterns: []
+
+concrete_issues:
+- id: ISSUE-01
+  severity: high
+  area: documentation_consistency
+  title: "All active plan files remain pending despite PRD completed state"
+  impact: "Execution/status tracking is contradictory; implementers cannot trust plan state during maintenance."
+  evidence:
+  - docs/PRD.yaml:3
+  - docs/plan/layout-fix-center-navbar-bigmen-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-theme-toggle-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-js-theme-toggle-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-participant-pages-block-rework-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-stylecss-redundancy-cleanup-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml:5
+  - docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml:5
+
+- id: ISSUE-02
+  severity: medium
+  area: documentation_consistency
+  title: "Plan contains factually incorrect assumption that PRD does not exist"
+  impact: "Reduces trust in plan assumptions and can misdirect future maintenance work."
+  evidence:
+  - docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml:36
+  - docs/PRD.yaml:1
+
+- id: ISSUE-03
+  severity: medium
+  area: documentation_contract_drift
+  title: "Profile parity docs still require preserving a back-link that current contract explicitly removed"
+  impact: "Conflicting conventions across docs can cause accidental reintroduction of deprecated markup."
+  evidence:
+  - docs/PRD.yaml:34
+  - docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml:64
+  - docs/plan/adhoc-profile-parity-2026-04-11/completion_note.md:10
+
+- id: ISSUE-04
+  severity: medium
+  area: mobile_layout
+  title: "Profile pages use very large right padding on <=480px"
+  impact: "Can unnecessarily compress content width on small screens and increase wrapping/visual imbalance."
+  evidence:
+  - style.css:367
+  - style.css:370
+
+- id: ISSUE-05
+  severity: low
+  area: usability_metadata
+  title: "All profile pages share identical browser tab title"
+  impact: "Lower tab distinguishability and weaker UX when multiple profile tabs are open."
+  evidence:
+  - Myhal_Yurii/Myhal.html:6
+  - Matvii_Kovalov/Kovalov.html:6
+  - Sviatoslav_Lylo/Sviatoslav.html:6
+
+- id: ISSUE-06
+  severity: low
+  area: docs_contract_precision
+  title: "AGENTS statement about homepage-only style scoping is broader than actual CSS behavior"
+  impact: "Can mislead maintainers because global element selectors are active across pages."
+  evidence:
+  - AGENTS.md:3
+  - style.css:50
+  - style.css:96
+  - style.css:121
+
+dead_or_useless_elements_safe_to_remove:
+- element: "Unused CSS custom properties: --home-surface, --home-surface-soft"
+  reason_safe: "Only declaration occurrences found; no consumption references in style.css."
+  evidence:
+  - style.css:4
+  - style.css:5
+  - style.css:28
+  - style.css:29
+
+- element: "Unused CSS custom properties: --home-link-hover-bg, --home-link-hover-border"
+  reason_safe: "Only declaration occurrences found; no consumption references in style.css."
+  evidence:
+  - style.css:11
+  - style.css:12
+  - style.css:35
+  - style.css:36
+
+- element: "Unused CSS custom properties: --home-cell-bg, --home-cell-text"
+  reason_safe: "Only declaration occurrences found; no consumption references in style.css."
+  evidence:
+  - style.css:13
+  - style.css:15
+  - style.css:37
+  - style.css:39
+
+minimal_safe_fix_set:
+- step: "Synchronize status fields between PRD and plan artifacts used as current references."
+  target_files:
+  - docs/plan/layout-fix-center-navbar-bigmen-2026-04-11/plan.yaml
+  - docs/plan/adhoc-theme-toggle-2026-04-11/plan.yaml
+  - docs/plan/adhoc-js-theme-toggle-2026-04-11/plan.yaml
+  - docs/plan/adhoc-participant-pages-block-rework-2026-04-11/plan.yaml
+  - docs/plan/adhoc-stylecss-redundancy-cleanup-2026-04-11/plan.yaml
+  - docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml
+  - docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml
+  done_when: "Status semantics no longer contradict docs/PRD.yaml completed state."
+
+- step: "Remove or correct outdated assumptions in plan docs (missing PRD, mandatory back-link text)."
+  target_files:
+  - docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml
+  - docs/plan/adhoc-profile-parity-2026-04-11/plan.yaml
+  - docs/plan/adhoc-profile-parity-2026-04-11/completion_note.md
+  done_when: "Plan language matches active PRD/AGENTS contracts for profile pages and project docs."
+
+- step: "Adjust profile mobile right padding to balanced values while preserving top-right toggle clearance."
+  target_files:
+  - style.css
+  done_when: "At <=480px, profile content is not overly compressed and no overlap occurs with toggle/navbar."
+
+- step: "Set unique profile page titles per participant."
+  target_files:
+  - Myhal_Yurii/Myhal.html
+  - Matvii_Kovalov/Kovalov.html
+  - Sviatoslav_Lylo/Sviatoslav.html
+  done_when: "Each profile tab title uniquely identifies the participant."
+
+what_not_to_touch_risky_areas:
+- area: "Theme runtime DOM contract and storage key"
+  why_risky: "Changing .home-theme-toggle-button, body[data-home-theme], or storage key home-theme can break cross-page persistence and ARIA state updates."
+  evidence:
+  - script.js:3
+  - script.js:4
+  - script.js:6
+
+- area: "Shared navbar width/box model contract"
+  why_risky: "Current overflow-safe behavior depends on aligned max-width and border-box sizing across nav/container blocks."
+  evidence:
+  - AGENTS.md:4
+  - style.css:130
+  - style.css:137
+
+- area: "Profile 4-block semantic structure and class names"
+  why_risky: "CSS and documentation rely on this exact ordered structure for profile parity and maintainability."
+  evidence:
+  - AGENTS.md:8
+  - Myhal_Yurii/Myhal.html:22
+  - Matvii_Kovalov/Kovalov.html:22
+  - Sviatoslav_Lylo/Sviatoslav.html:22
+
+implementer_checklist:
+- "[ ] Confirm no changes are required to runtime theme contract hooks: body[data-home-theme] + one .home-theme-toggle-button per page."
+- "[ ] Align plan file statuses with PRD completion state or archive plans as historical."
+- "[ ] Remove outdated back-link preservation statements from plan docs/completion note."
+- "[ ] Remove unused CSS tokens listed in this report."
+- "[ ] Rebalance <=480px profile right padding and manually validate on narrow viewport."
+- "[ ] Make profile <title> values participant-specific."
+- "[ ] Re-run manual smoke checks: homepage + 3 profiles, light/dark toggle, navbar overflow, profile 4-block layout."
+
+open_questions:
+- question: "Should historical plan files under docs/plan be normalized to completed or explicitly marked archived to prevent future confusion?"
+  context: "All plan files show pending while PRD is completed."
+  type: decision_blocker
+  affects: ["audit-followup"]
+
+gaps:
+- area: "Browser-level visual validation"
+  description: "This audit is static (source inspection only); no live browser rendering or viewport screenshots were executed in this pass."
+  impact: research_blocker
+  affects: ["mobile-padding-verification", "navbar-overflow-recheck"]

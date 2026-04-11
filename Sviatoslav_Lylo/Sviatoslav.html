@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мій Профіль</title>
+    <title>Святослав - Профіль</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body data-home-theme="light">
@@ -15,18 +15,39 @@
 
     <nav class="site-nav" aria-label="Навігація сторінками команди">
         <a href="../index.html">Головна</a>
-        <a href="../Myhal_Yurii/Myhal.html">Мигаль Юрій</a>
+        <a href="../Myhal_Yurii/Myhal.html">Мигаль Юрій (Team Lead)</a>
         <a href="../Matvii_Kovalov/Kovalov.html">Ковальов Матвій</a>
     </nav>
 
-    <div class="card">
-        <img src="../Foto/Sv.jpg" alt="Моє фото" class="profile-photo">
-        <h1>Привіт! Я майбутній фахівець з ШІ 💻</h1>
-        <p>Студент 1 курсу комп'ютерних наук (СШІ) у Львівській політехніці.</p>
-        <p>Зараз активно працюю з Git, Visual Studio та опановую програмування.</p>
-        <br>
-        <a href="../index.html">← Назад на головну</a>
-    </div>
+    <main class="profile-main" aria-label="Профіль учасника">
+        <section class="card profile-block profile-intro" aria-label="Вступ">
+            <div class="profile-intro-media">
+                <img src="../Foto/Sv.jpg" alt="Фото Лила Святослава" class="profile-photo">
+            </div>
+            <div class="profile-intro-identity">
+                <h1>Святослав</h1>
+                <p>Майбутній фахівець із ШІ</p>
+            </div>
+        </section>
+
+        <section class="card profile-block profile-study-place" aria-label="Де навчаюся">
+            <h2>Де я навчаюся</h2>
+            <p class="university">Студент 1 курсу комп'ютерних наук (СШІ).</p>
+            <p class="university"><strong>Національний університет "Львівська політехніка"</strong></p>
+        </section>
+
+        <section class="card profile-block profile-study-focus" aria-label="Що вивчаю та інтереси">
+            <h2>Що вивчаю та чим цікавлюся</h2>
+            <p>Працюю з Git та Visual Studio, поглиблюю навички програмування та інженерного мислення.</p>
+            <p>Окрема сфера інтересу: алгоритми, практичне застосування ШІ та командна розробка.</p>
+        </section>
+
+        <section class="card profile-block profile-signature" aria-label="Фірмові фрази">
+            <h2>Фірмові фрази</h2>
+            <p>"Щоденний прогрес сильніший за ривок раз на місяць."</p>
+            <p>"Практика і ще раз практика."</p>
+        </section>
+    </main>
 
     <script src="../script.js"></script>
 </body>
