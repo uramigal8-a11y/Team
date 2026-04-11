@@ -1,0 +1,22 @@
+prd_id: team-homepage-modernization
+updated_at: "2026-04-11"
+status: completed
+
+features:
+  - id: homepage-monochrome-modernization
+    status: completed
+    completed_on: "2026-04-11"
+    scope: "index.html + style.css (homepage-only visual refresh)"
+
+  - id: homepage-team-description-cells
+    status: completed
+    completed_on: "2026-04-11"
+    scope: "Added descriptive team cells on homepage, including one placeholder cell"
+
+notes:
+  - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
+
+change_log:
+  - date: "2026-04-11"
+    type: minimal
+    entry: "Marked homepage monochrome modernization and team description cells as complete; recorded .home-page style-scoping constraint."

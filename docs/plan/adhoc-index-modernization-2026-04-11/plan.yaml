@@ -1,0 +1,227 @@
+plan_id: adhoc-index-modernization-2026-04-11
+objective: "Update index.html homepage to a modern black-and-white style and add team description cells/placeholders."
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 1
+  risk_score: medium
+
+tldr: |
+  - Scope stays homepage-only with immutable existing profile href values in index.html (source: index.html; research_findings_homepage.yaml).
+  - Shared style.css remains coupled to profile pages; homepage styling must be scoped to avoid regressions (source: style.css; Myhal_Yurii/Myhal.html; Matvii_Kovalov/Kovalov.html; Sviatoslav_Lylo/Sviatoslav.html).
+  - Stack and content constraints remain HTML5+CSS3 only with Ukrainian UI text (source: /memories/repo/team-site.md; .github/copilot-instructions.md).
+
+open_questions: []
+
+pre_mortem:
+  overall_risk_level: medium
+  critical_failure_modes:
+    - scenario: "Homepage CSS modernization leaks into profile pages and changes their layout/contrast unexpectedly due to shared stylesheet coupling."
+      likelihood: medium
+      impact: medium
+      mitigation: "Use homepage-scoped wrapper/classes and avoid destructive edits to shared class semantics used by profile pages; validate index and all profile pages manually."
+    - scenario: "Monochrome design reduces keyboard focus visibility or contrast, causing accessibility regressions."
+      likelihood: medium
+      impact: high
+      mitigation: "Define explicit :focus-visible styles with strong contrast in monochrome palette and test keyboard navigation end-to-end."
+    - scenario: "Long member names overflow cells on narrow screens (320px), breaking layout."
+      likelihood: medium
+      impact: medium
+      mitigation: "Use resilient wrapping and min-width responsive rules; verify layout at 320px viewport."
+  assumptions:
+    - "No PRD file is present; user request is the source of scope and acceptance (source: workspace file search)."
+    - "No JavaScript or build tooling is allowed; implementation is static HTML/CSS only (source: .github/copilot-instructions.md; /memories/repo/team-site.md)."
+
+implementation_specification:
+  code_structure: "Keep existing file layout; add homepage-specific semantic sections/classes in index.html and corresponding scoped rules in style.css while preserving shared class contracts for profile pages."
+  affected_areas:
+    - "index.html"
+    - "style.css"
+    - "docs/plan/adhoc-index-modernization-2026-04-11/plan.yaml"
+  component_details:
+    - component: "Homepage content structure"
+      responsibility: "Represent modern monochrome hero/introduction plus team description cells/placeholders with accessible headings and concise Ukrainian copy."
+      interfaces:
+        - "Existing homepage profile href values remain byte-identical: Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html (source: index.html)."
+    - component: "Scoped homepage styling in shared stylesheet"
+      responsibility: "Provide black-and-white visual direction, spacing, cards/cells, and responsive behavior without breaking profile page patterns."
+      interfaces:
+        - "New selectors scoped to homepage container (e.g., page-level class) to isolate effects."
+    - component: "Documentation sync"
+      responsibility: "Record what changed on homepage and why scope isolation was used."
+      interfaces:
+        - "Short update in existing project documentation location used by the repo."
+  dependencies:
+    - component: "Homepage content structure"
+      relationship: "Consumes scoped CSS rules from shared stylesheet."
+    - component: "Documentation sync"
+      relationship: "Depends on finalized HTML/CSS implementation details."
+  integration_points:
+    - "index.html links to style.css via existing <link> tag."
+    - "Profile pages continue using ../style.css and existing shared classes unchanged."
+
+contracts:
+  - from_task: T1
+    to_task: T2
+    interface: "Optional concise changelog note: homepage-only scope, immutable href confirmation, and accessibility edge-case results."
+    format: "Bullet summary with file-level deltas and validation checklist."
+
+tasks:
+  - id: T1
+    title: "Implement monochrome homepage refresh with team description cells"
+    description: |
+      Update homepage markup and shared stylesheet to deliver a modern black-and-white landing section,
+      preserving existing member profile links and introducing team description cells/placeholders in Ukrainian.
+      Scope style changes to homepage-specific selectors so profile pages keep their current behavior.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    covers:
+      - "AC-1 monochrome modern homepage visual"
+      - "AC-2 team description cells/placeholders added"
+      - "AC-3 profile links remain functional"
+      - "AC-4 shared style.css reused; no JS"
+      - "AC-5 profile-page class behavior preserved"
+    priority: high
+    status: pending
+    estimated_lines: 220
+    verification:
+      - "Open homepage at desktop and 320px width; verify no horizontal overflow and readable card/cell layout."
+      - "Test long-name rendering in team cells/list (wrapping without overlap or clipping)."
+      - "Navigate by keyboard only and verify focus-visible state has clear monochrome contrast for links/interactive elements."
+      - "Confirm the three existing homepage profile href values are unchanged and each link opens expected profile page."
+      - "Open all profile pages directly and verify shared classes (.card, .profile-photo, .university, .team-list) are not regressed."
+    acceptance_criteria:
+      - "Homepage has modern monochrome styling implemented with HTML+CSS only in existing files."
+      - "Team description cells/placeholders are present with Ukrainian text."
+      - "Existing homepage profile href values remain unchanged exactly: Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html."
+      - "Layout remains usable at 320px viewport and with long member names."
+      - "Keyboard focus is clearly visible with sufficient monochrome contrast."
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: index.html
+        description: "Homepage structure and existing profile links to preserve."
+      - path: style.css
+        description: "Shared stylesheet where homepage-scoped monochrome rules are added."
+
+  - id: T2
+    title: "Optional minimal documentation note for homepage modernization"
+    description: |
+      Optionally add a short note only if implementation details changed materially,
+      documenting homepage scope, immutable href constraint, and key edge-case verification outcomes.
+    wave: 2
+    agent: gem-documentation-writer
+    prototype: false
+    covers:
+      - "AC-6 documentation synchronized with implemented homepage changes"
+    priority: low
+    status: pending
+    estimated_lines: 40
+    verification:
+      - "Check note is <= 10 lines, references only implemented changes, and avoids duplicating plan content."
+      - "Confirm note explicitly states href immutability and accessibility/mobile edge-case validation status."
+    acceptance_criteria:
+      - "Documentation update is minimal/optional and only produced when implementation warrants it."
+      - "If produced, it records immutable href constraint and edge-case verification summary."
+    flags:
+      flaky: false
+      retries_used: 0
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+        description: "Source context and constraints discovered during research."
+      - path: index.html
+        description: "Final homepage text/structure to document."
+      - path: style.css
+        description: "Final scoped style approach to document."
+
+planning_pass: 2
+planning_history:
+  - pass: 1
+    reason: "Initial plan creation from user objective with existing repo constraints and research findings."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 180
+    focus_area: homepage
+    verification:
+      - "Open index.html in browser and verify monochrome layout, readable hierarchy, and responsive behavior on desktop/mobile widths."
+      - "Click each team link from homepage and confirm destination profile page opens correctly."
+      - "Open each profile page directly and verify .card/.profile-photo/.university visuals are not regressed."
+    acceptance_criteria:
+      - "Homepage uses modern black-and-white style implemented via HTML+CSS only."
+      - "Team description cells/placeholders are present on homepage in Ukrainian."
+      - "Existing profile links from homepage remain unchanged and functional."
+      - "All styling remains in shared style.css; no per-page CSS or JS added."
+      - "Shared classes used by profile pages are not broken by homepage updates."
+    failure_modes:
+      - scenario: "Accidental edit to existing href paths breaks navigation to profile pages."
+        likelihood: low
+        impact: high
+        mitigation: "Treat href targets as immutable and validate each link manually after edits."
+      - scenario: "Overriding global selectors degrades profile-page readability/spacing."
+        likelihood: medium
+        impact: medium
+        mitigation: "Add homepage-only wrapper class and prefer descendant selectors under that wrapper."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+    test_coverage: null
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "What changed on homepage"
+      - "What was intentionally left unchanged for profile compatibility"
+      - "How to verify links and styling non-regression"
+  - pass: 2
+    reason: "Revision applied from user feedback to add per-task estimates, explicit verification/acceptance criteria, edge cases, and stronger immutable href constraint."
+    timestamp: "2026-04-11"
+    estimated_effort: small
+    estimated_files: 3
+    estimated_lines: 260
+    focus_area: homepage
+    verification:
+      - "Per-task verification and acceptance_criteria fields exist and are executable."
+      - "Edge cases include long names, 320px viewport, and keyboard focus visibility/contrast in monochrome."
+      - "Risk level is medium due to shared CSS coupling in style.css."
+    acceptance_criteria:
+      - "Task entries contain estimated_lines <= 300."
+      - "Plan enforces immutable existing homepage href values."
+      - "Documentation task is optional/minimal rather than heavyweight."
+    failure_modes:
+      - scenario: "Plan remains too broad and hard to execute quickly."
+        likelihood: low
+        impact: medium
+        mitigation: "Constrain to 2 tasks, explicit limits, and concise verification/AC checks."
+    tech_stack:
+      - "HTML5"
+      - "CSS3"
+    test_coverage: null
+    requires_review: false
+    review_depth: null
+    review_security_sensitive: false
+    environment: null
+    requires_approval: false
+    devops_security_sensitive: false
+    task_type: update
+    audience: developers
+    coverage_matrix:
+      - "Task-level execution constraints"
+      - "Edge-case validation obligations"
+      - "Immutable href guarantee"

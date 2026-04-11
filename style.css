@@ -73,3 +73,176 @@ hr {
     border-top: 1px solid #eee;
     margin: 20px 0;
 }
+
+/* Головна сторінка: ізольований чорно-білий стиль */
+.home-page {
+    --home-bg: #0a0a0a;
+    --home-surface: #141414;
+    --home-surface-soft: #1d1d1d;
+    --home-text: #f5f5f5;
+    --home-muted: #cccccc;
+    --home-border: #3a3a3a;
+    --home-focus: #ffffff;
+    background:
+        radial-gradient(circle at 15% 10%, #1b1b1b 0%, rgba(27, 27, 27, 0) 40%),
+        radial-gradient(circle at 85% 80%, #202020 0%, rgba(32, 32, 32, 0) 45%),
+        #0a0a0a;
+    color: var(--home-text);
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    text-align: left;
+    margin: 0;
+    padding: 28px 20px;
+}
+
+.home-page .home-shell {
+    width: min(1080px, 100%);
+    margin: 0 auto;
+    display: grid;
+    gap: 24px;
+}
+
+.home-page .card {
+    display: block;
+    max-width: none;
+    width: 100%;
+    background: linear-gradient(135deg, #131313 0%, #0f0f0f 100%);
+    border: 1px solid var(--home-border);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    border-radius: 18px;
+    padding: 28px;
+}
+
+.home-page .home-kicker {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+    color: var(--home-muted);
+}
+
+.home-page h1,
+.home-page h2,
+.home-page h3,
+.home-page p {
+    color: var(--home-text);
+}
+
+.home-page h1 {
+    margin: 0;
+    font-size: clamp(30px, 6vw, 48px);
+    line-height: 1.1;
+}
+
+.home-page .home-lead {
+    margin: 14px 0 0;
+    color: var(--home-muted);
+    max-width: 62ch;
+}
+
+.home-page .home-section {
+    background: var(--home-surface);
+    border: 1px solid var(--home-border);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.home-page h2 {
+    margin: 0 0 16px;
+    font-size: clamp(22px, 4.2vw, 30px);
+}
+
+.home-page .home-team-list {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.home-page .home-team-list li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    transform: none;
+}
+
+.home-page .home-team-list li:hover {
+    background: none;
+    transform: none;
+}
+
+.home-page .home-team-list a {
+    display: block;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--home-border);
+    background: var(--home-surface-soft);
+    color: var(--home-text);
+    font-weight: 600;
+    text-decoration: none;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.home-page .home-team-list a:hover {
+    background: #252525;
+    border-color: #585858;
+    text-decoration: none;
+}
+
+.home-page .home-cells {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.home-page .home-cell {
+    background: #f6f6f6;
+    color: #121212;
+    border: 1px solid #d9d9d9;
+    border-radius: 14px;
+    padding: 18px;
+    min-height: 150px;
+}
+
+.home-page .home-cell h3 {
+    color: #0f0f0f;
+    margin: 0 0 10px;
+    font-size: 20px;
+}
+
+.home-page .home-cell p {
+    color: #2c2c2c;
+    margin: 0;
+}
+
+.home-page .home-cell-placeholder {
+    background: repeating-linear-gradient(
+        -45deg,
+        #ececec,
+        #ececec 10px,
+        #e0e0e0 10px,
+        #e0e0e0 20px
+    );
+}
+
+.home-page a:focus-visible {
+    outline: 3px solid var(--home-focus);
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .home-page {
+        padding: 16px 12px;
+    }
+
+    .home-page .card,
+    .home-page .home-section {
+        padding: 18px;
+    }
+
+    .home-page .home-team-list a {
+        padding: 12px;
+    }
+}

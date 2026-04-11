@@ -6,27 +6,50 @@
     <title>Наша Команда</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="home-page">
+    <main class="home-shell" aria-labelledby="home-title">
+        <section class="home-hero card">
+            <p class="home-kicker">Командний простір</p>
+            <h1 id="home-title">Наша команда</h1>
+            <p class="home-lead">Сторінка знайомства з учасниками та коротким описом наших ролей у спільному проєкті.</p>
+        </section>
 
-    <div class="card">
-        <h1>Вітаємо! 👋</h1>
-        <p>Це офіційна сторінка нашої команди. Ми працюємо над спільним проєктом на GitHub.</p>
+        <section class="home-section" aria-labelledby="team-links-title">
+            <h2 id="team-links-title">Профілі учасників</h2>
+            <ul class="team-list home-team-list">
+                <li>
+                    <a href="Myhal_Yurii/Myhal.html">Профіль Мигаля Юрія (Team Lead)</a>
+                </li>
+                <li>
+                    <a href="Matvii_Kovalov/Kovalov.html">Профіль Ковальова Матвія</a>
+                </li>
+                <li>
+                    <a href="Sviatoslav_Lylo/Sviatoslav.html">Профіль Святослава</a>
+                </li>
+            </ul>
+        </section>
 
-        <hr>
-
-        <p><strong>Список учасників:</strong></p>
-        <ul class="team-list">
-            <li>
-                <a href="Myhal_Yurii/Myhal.html">Профіль Мигаля Юрія (Team Lead)</a>
-            </li>
-            <li>
-                <a href="Matvii_Kovalov/Kovalov.html">Профіль Ковальова Матвія</a>
-            </li>
-            <li>
-                <a href="Sviatoslav_Lylo/Sviatoslav.html">Профіль Святослава</a>
-            </li>
-        </ul>
-    </div>
-
+        <section class="home-section" aria-labelledby="team-cells-title">
+            <h2 id="team-cells-title">Описові комірки команди</h2>
+            <div class="home-cells">
+                <article class="home-cell">
+                    <h3>Координація</h3>
+                    <p>Планування задач, контроль прогресу та синхронізація рішень між усіма учасниками.</p>
+                </article>
+                <article class="home-cell">
+                    <h3>Розробка</h3>
+                    <p>Реалізація структури сторінок, підтримка спільних стилів і узгодженість візуальної мови.</p>
+                </article>
+                <article class="home-cell">
+                    <h3>Якість</h3>
+                    <p>Перевірка навігації, читабельності та доступності інтерфейсу на різних розмірах екрана.</p>
+                </article>
+                <article class="home-cell home-cell-placeholder">
+                    <h3>Резервна комірка</h3>
+                    <p>Місце для майбутнього опису нового напряму або учасника команди.</p>
+                </article>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
