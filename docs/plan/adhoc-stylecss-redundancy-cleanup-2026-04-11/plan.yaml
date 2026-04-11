@@ -1,0 +1,235 @@
+plan_id: adhoc-stylecss-redundancy-cleanup-2026-04-11
+objective: "Create a minimal, low-regression execution plan to remove redundant CSS in style.css"
+created_at: "2026-04-11"
+created_by: gem-planner
+status: pending
+research_confidence: high
+
+plan_metrics:
+  wave_1_task_count: 1
+  total_dependencies: 2
+  risk_score: low
+
+tldr: |
+  - Limit changes to proven dead/duplicate selectors in style.css only.
+  - Remove unused team-list/hr/reduced-motion references and deduplicate .home-theme-toggle-button + icon/focus rules.
+  - Protect theme-token and navbar cascade contracts to keep regression risk low.
+
+open_questions:
+  - "None blocking for this minimal pass; proceed with strict safe-list edits only. [source: docs/plan/adhoc-stylecss-redundancy-audit-2026-04-11/research_findings_style_css.yaml]"
+
+pre_mortem:
+  overall_risk_level: low
+  critical_failure_modes:
+    - scenario: "A removed selector is actually required on profile pages due to shared stylesheet scope."
+      likelihood: low
+      impact: high
+      mitigation: "Before/after verification on homepage and all existing profile pages with light/dark theme toggle states. [source: AGENTS.md, docs/PRD.yaml]"
+    - scenario: "Deduping toggle/icon/focus rules accidentally changes specificity and breaks visible focus or icon swap."
+      likelihood: medium
+      impact: medium
+      mitigation: "Keep one canonical base block and preserve dark/home-page-specific overrides and selector specificity order. [source: style.css, script.js]"
+  assumptions:
+    - "Current HTML contains no .team-list, .home-team-list, or <hr> nodes. [source: grep_search over **/*.html on 2026-04-11]"
+    - "Homepage and profile pages rely on shared DOM contract body[data-home-theme] + one .home-theme-toggle-button per page. [source: AGENTS.md, docs/PRD.yaml]"
+    - "Theme token scope and navbar width contract are sensitive and must not be refactored in this pass. [source: AGENTS.md, docs/plan/adhoc-stylecss-redundancy-audit-2026-04-11/research_findings_style_css.yaml]"
+
+implementation_specification:
+  code_structure: "Single-file edit in style.css, preserving existing cascade order except for removing dead/duplicate rules. [source: style.css]"
+  affected_areas:
+    - "style.css: remove dead list/hr/reduced-motion references and duplicate toggle/icon/focus declarations. [source: style.css]"
+    - "index.html + profile pages: read-only verification targets, no markup changes planned. [source: index.html, Myhal_Yurii/Myhal.html, Matvii_Kovalov/Kovalov.html, Sviatoslav_Lylo/Sviatoslav.html]"
+  component_details:
+    - component: "Legacy list separators and motion overrides"
+      responsibility: "Delete unused .team-list/.home-team-list and hr-related rules, including reduced-motion entries that target removed selectors."
+      interfaces:
+        - "No public API; visual CSS only."
+    - component: "Theme toggle shared styles"
+      responsibility: "Consolidate duplicate .home-theme-toggle-button, .home-theme-icon, and :focus-visible blocks without changing behavior."
+      interfaces:
+        - "Must preserve JS contract using .home-theme-toggle-button and icon classes. [source: script.js]"
+    - component: "Cascade safety guard"
+      responsibility: "Explicitly avoid token/cascade contracts tied to .home-page and navbar width/box-sizing rules."
+      interfaces:
+        - "No edits in theme token blocks or navbar width contract blocks. [source: AGENTS.md]"
+  dependencies:
+    - component: "script.js theme toggle"
+      relationship: "Consumes class hooks defined in CSS; dedup must not rename selectors."
+    - component: "Page templates"
+      relationship: "All pages share style.css; verification must include homepage + profiles."
+  integration_points:
+    - "style.css selector blocks for .home-theme-toggle-button/.home-theme-icon/.home-theme-toggle-button:focus-visible"
+    - "style.css legacy list/hr/reduced-motion blocks"
+
+contracts:
+  - from_task: T1
+    to_task: T2
+    interface: "Patch constrained to safe-list selectors only; no token/cascade refactor."
+    format: "Changed selector list + short rationale per selector"
+  - from_task: T2
+    to_task: T3
+    interface: "Verification evidence and pass/fail matrix across pages and themes."
+    format: "Checklist results with impacted selectors"
+
+tasks:
+  - id: T1
+    title: "Apply minimal CSS redundancy cleanup"
+    description: |
+      Edit style.css only to:
+      1) remove dead rules for team-list/hr/reduced-motion references if unused by current HTML,
+      2) deduplicate duplicate .home-theme-toggle-button and icon/focus blocks,
+      3) avoid risky token/cascade contracts.
+      Do not reorder major sections or alter selector names.
+    wave: 1
+    agent: gem-implementer
+    prototype: false
+    priority: high
+    status: pending
+    dependencies: []
+    conflicts_with: []
+    context_files:
+      - path: style.css
+        description: "Primary stylesheet to be cleaned."
+      - path: docs/plan/adhoc-stylecss-redundancy-audit-2026-04-11/research_findings_style_css.yaml
+        description: "Safe vs risky simplification guidance."
+      - path: AGENTS.md
+        description: "Theme/nav contract constraints."
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Initial minimal cleanup plan from user request"
+        timestamp: "2026-04-11T00:00:00Z"
+        estimated_effort: small
+        estimated_files: 1
+        estimated_lines: 120
+        focus_area: "style.css"
+        verification:
+          - "No selector renames used by script.js."
+          - "No edits in .home-page token blocks and navbar width contract blocks."
+          - "CSS parses with no syntax errors."
+        acceptance_criteria:
+          - "Dead team-list/hr/reduced-motion references removed if unused by current HTML."
+          - "Duplicate toggle/icon/focus rules reduced to a single canonical set with same behavior."
+          - "No risky token/cascade contracts changed."
+        failure_modes:
+          - scenario: "Selector removal changes profile-page layout unexpectedly."
+            likelihood: low
+            impact: high
+            mitigation: "Limit removals to selectors with no HTML usage evidence and preserve scoped contracts."
+        tech_stack:
+          - "CSS3"
+          - "HTML5 (verification context only)"
+        test_coverage: "Manual visual verification delegated to T2"
+
+  - id: T2
+    title: "Verify regression safety across pages and themes"
+    description: |
+      Run evidence-based browser validation after T1.
+      Confirm visual/interaction parity for homepage and each profile page in:
+      - light theme,
+      - dark theme,
+      - mobile-width viewport,
+      - reduced-motion environment (if available).
+      Focus on navbar width, toggle button behavior, icon swap, and focus visibility.
+    wave: 2
+    agent: gem-browser-tester
+    prototype: false
+    priority: medium
+    status: pending
+    dependencies:
+      - T1
+    conflicts_with: []
+    context_files:
+      - path: index.html
+        description: "Homepage verification target."
+      - path: Myhal_Yurii/Myhal.html
+        description: "Profile verification target 1."
+      - path: Matvii_Kovalov/Kovalov.html
+        description: "Profile verification target 2."
+      - path: Sviatoslav_Lylo/Sviatoslav.html
+        description: "Profile verification target 3."
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Low-risk validation gate before closeout"
+        timestamp: "2026-04-11T00:00:00Z"
+        estimated_effort: small
+        estimated_files: 0
+        estimated_lines: 0
+        focus_area: "Manual browser verification"
+        verification:
+          - "Theme toggle switches body[data-home-theme] and updates icon visibility correctly."
+          - "Focus ring remains visible on toggle and nav links via keyboard navigation."
+          - "No spacing/overflow regressions in navbar/home cards/profile blocks."
+        acceptance_criteria:
+          - "All four pages pass light/dark visual checks."
+          - "Mobile viewport check passes without horizontal overflow."
+          - "Any regression is reported with selector-level root cause."
+        failure_modes:
+          - scenario: "Reduced-motion state not reproducible in test environment."
+            likelihood: medium
+            impact: medium
+            mitigation: "Mark as constrained and provide best-effort static CSS confirmation for reduced-motion blocks."
+        validation_matrix:
+          - scenario: "Homepage light/dark + toggle"
+            steps:
+              - "Open index.html"
+              - "Toggle theme and observe icon swap"
+              - "Tab to nav links and toggle button"
+            expected_result: "Theme, icon, and focus-visible states match pre-cleanup behavior."
+          - scenario: "Profile pages light/dark parity"
+            steps:
+              - "Open each profile page"
+              - "Toggle theme"
+              - "Check navbar width/alignment and fixed toggle position"
+            expected_result: "No navbar overflow; toggle remains accessible and styled correctly."
+          - scenario: "Mobile viewport smoke"
+            steps:
+              - "Set viewport <= 480px on homepage and one profile page"
+              - "Check spacing, wrapping, and overflow"
+            expected_result: "No clipping/horizontal scroll introduced by cleanup."
+
+  - id: T3
+    title: "Update redundancy audit documentation"
+    description: |
+      Record exactly what selectors were removed/deduplicated and attach T2 verification outcomes.
+      Keep notes concise and scoped to this cleanup pass.
+    wave: 3
+    agent: gem-documentation-writer
+    prototype: false
+    priority: low
+    status: pending
+    dependencies:
+      - T2
+    conflicts_with: []
+    context_files:
+      - path: docs/plan/adhoc-stylecss-redundancy-cleanup-2026-04-11/plan.yaml
+        description: "Plan source of truth for implementation/verification order."
+      - path: docs/plan/adhoc-stylecss-redundancy-audit-2026-04-11/research_findings_style_css.yaml
+        description: "Baseline audit findings to update with completion deltas."
+    planning_pass: 1
+    planning_history:
+      - pass: 1
+        reason: "Required documentation sync after style cleanup"
+        timestamp: "2026-04-11T00:00:00Z"
+        estimated_effort: small
+        estimated_files: 1
+        estimated_lines: 40
+        focus_area: "docs/plan notes"
+        verification:
+          - "Selector removal list matches implemented diff."
+          - "Verification outcomes from T2 are included."
+        acceptance_criteria:
+          - "Cleanup decisions and safety constraints are documented."
+          - "Known residual risks or skipped checks are explicitly listed."
+        failure_modes:
+          - scenario: "Doc misses one changed selector, reducing traceability."
+            likelihood: low
+            impact: low
+            mitigation: "Cross-check against final CSS diff before publishing note."
+        task_type: update
+        audience: developers
+        coverage_matrix:
+          - "Removed dead selectors"
+          - "Deduplicated toggle/icon/focus selectors"
+          - "Verification summary and residual risk"
