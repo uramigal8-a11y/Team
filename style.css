@@ -101,6 +101,32 @@ hr {
     gap: 24px;
 }
 
+.home-page .site-nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px 18px;
+}
+
+.home-page .site-nav a {
+    color: var(--home-text);
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.home-page .site-nav a:hover,
+.home-page .site-nav a:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
 .home-page .card {
     display: block;
     max-width: none;
