@@ -391,3 +391,11 @@ body:not(.home-page) .university {
         padding: 18px;
     }
 }
+
+/* Зменшений рух — вимкнути переходи для інтерактивних елементів */
+@media (prefers-reduced-motion: reduce) {
+    .site-nav a,
+    .home-theme-toggle-button {
+        transition: none;
+    }
+}

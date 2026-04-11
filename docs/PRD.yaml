@@ -30,7 +30,7 @@ decisions:
     decision: "Theme runtime is page-agnostic and keyed by home-theme; each page must expose body[data-home-theme] and one .home-theme-toggle-button."
 
 notes:
-  - "Homepage styles are scoped under .home-page to avoid regressions in profile pages using shared classes."
+  - "Homepage-specific layout rules are scoped under .home-page; global base styles (body, .card, body[data-home-theme] tokens) apply across all pages."
   - "Profile pages follow one semantic 4-block contract inside main.profile-main and do not include mandatory back-link anchors."
 
 change_log:
