@@ -263,7 +263,7 @@ body:not(.home-page) .university {
 /* Головна сторінка: перемикач світлої/темної теми через JavaScript */
 .home-page {
     padding:
-        calc(28px + env(safe-area-inset-top, 0px))
+        calc(72px + env(safe-area-inset-top, 0px))
         calc(20px + env(safe-area-inset-right, 0px))
         calc(28px + env(safe-area-inset-bottom, 0px))
         calc(20px + env(safe-area-inset-left, 0px));
