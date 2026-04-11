@@ -248,10 +248,6 @@ body:not(.home-page) .profile-block {
     padding: 24px;
 }
 
-body:not(.home-page) .site-nav {
-    margin-top: 0;
-}
-
 body:not(.home-page) {
     padding:
         calc(28px + env(safe-area-inset-top, 0px))
@@ -274,16 +270,8 @@ body:not(.home-page) .profile-intro-media .profile-photo {
     margin-bottom: 0;
 }
 
-body:not(.home-page) .profile-intro-identity h1 {
-    margin: 0;
-}
-
 body:not(.home-page) .profile-intro-identity p {
     margin: 8px 0 0;
-}
-
-body:not(.home-page) .profile-block h2 {
-    margin-top: 0;
 }
 
 body:not(.home-page) .university {
@@ -334,6 +322,12 @@ body:not(.home-page) .university {
 
 .home-page .home-section {
     margin-top: 0;
+    background: var(--home-card-bg);
+    border: 1px solid var(--home-border);
+    box-shadow: var(--home-shadow);
+    border-radius: 18px;
+    padding: 24px;
+    text-align: center;
 }
 
 .home-page .home-lead {
@@ -341,15 +335,6 @@ body:not(.home-page) .university {
     color: var(--home-muted);
     max-width: 62ch;
     margin-inline: auto;
-    text-align: center;
-}
-
-.home-page .home-section {
-    background: var(--home-card-bg);
-    border: 1px solid var(--home-border);
-    box-shadow: var(--home-shadow);
-    border-radius: 18px;
-    padding: 24px;
     text-align: center;
 }
 
