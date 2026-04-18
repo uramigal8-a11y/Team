@@ -9,7 +9,7 @@ on:
         default: 'main'
   push:
     branches:
-      - main
+      - Myhal_Jura_Actions
 
 jobs:
  check-and-update:
