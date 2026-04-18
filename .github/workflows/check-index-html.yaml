@@ -6,7 +6,7 @@ on:
       target_branch:
         description: 'Гілка для запуску'
         required: true
-        default: 'main'
+        default: 'Myhal_Jura_Actions'
   push:
     branches:
       - Myhal_Jura_Actions
