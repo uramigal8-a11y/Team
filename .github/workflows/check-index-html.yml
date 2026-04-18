@@ -1,10 +1,6 @@
-name: Check Index HTML
+name: Check Index HTML Myhal Jura
 
-on:
-  push:
-    branches:
-      - Myhal_Jura_Actions
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 jobs:
  check-and-update:
