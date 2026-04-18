@@ -1,56 +1,33 @@
-name: Check Index HTML Myhal Jura
+name: Check Index HTML
 
-on:
-  workflow_dispatch:
-    inputs:
-      target_branch:
-        description: 'Гілка для запуску'
-        required: true
-        default: 'Myhal_Jura_Actions'
-
-  push:
-    branches:
-      - main
-      - Myhal_Jura_Actions
-    paths-ignore:
-      - 'README.md'   # 🔥 НЕ запускається при зміні README
+on: [workflow_dispatch, push]
 
 jobs:
-  check-and-update:
-    if: github.actor != 'github-actions[bot]'   # 🔥 захист від циклу
-    runs-on: ubuntu-latest
+ check-and-update:
+  runs-on: ubuntu-latest
+  permissions:
+   contents: write
+  steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+    with:
+     token: ${{ secrets.MY_PERSONAL_TOKEN }}
+     fetch-depth: 0
 
-    permissions:
-      contents: write
+  - name: Run check script
+    run: bash check_index.sh
 
-    steps:
-      - name: Checkout потрібної гілки
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.target_branch || github.ref_name }}
-          token: ${{ secrets.MY_PERSONAL_TOKEN }}
-          fetch-depth: 0
-
-      - name: Run check script
-        run: bash check_index.sh
-
-      - name: Update README if index.html exists
-        if: env.FOUND == 'true'
-        run: |
-          BRANCH=${{ github.event.inputs.target_branch || github.ref_name }}
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin $BRANCH
-          git checkout -B $BRANCH origin/$BRANCH
-
-          touch README.md
-          echo "Branch: $BRANCH | index.html exists ✅" >> README.md
-
-          git add README.md
-
-          if ! git diff --cached --quiet; then
-            git commit -m "Автоматичне оновлення README ($BRANCH) [skip ci]"
-            git push origin $BRANCH
-          fi
+  - name: Update README if index.html exists
+    if: env.FOUND == 'true'
+    run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git fetch origin main
+      git checkout -B main origin/main
+      touch README.md
+      echo "Branch: ${{ github.ref_name }} | index.html exists ✅" >> README.md
+      git add README.md
+      if ! git diff --cached --quiet; then
+        git commit -m "Автоматичне оновлення README"
+        git push origin main
+      fi
