@@ -1,6 +1,15 @@
 name: Check Index HTML Myhal Jura
 
-on: [workflow_dispatch, push]
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Гілка для запуску'
+        required: true
+        default: 'main'
+  push:
+    branches:
+      - main
 
 jobs:
  check-and-update:
