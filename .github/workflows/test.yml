@@ -1,0 +1,13 @@
+name: Check Index HTML
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - Myhal_Jura_Actions
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Тест"
