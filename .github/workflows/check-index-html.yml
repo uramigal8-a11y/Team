@@ -1,6 +1,7 @@
 name: Check Index HTML
 
-on: [workflow_dispatch]
+on: 
+  workflow_dispatch:
 
 jobs:
   check-and-update:
