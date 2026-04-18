@@ -1,6 +1,6 @@
 name: Check Index HTML Myhal Jura
 
-on: [workflow_dispatch]
+on: [workflow_dispatch, push]
 
 jobs:
  check-and-update:
