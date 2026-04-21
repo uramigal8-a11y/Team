@@ -19,7 +19,6 @@ jobs:
     run: bash check_index.sh
 
   - name: Update README if index.html exists
-    if: env.FOUND == 'true'
     run: |
       git config user.name "github-actions[bot]"
       git config user.email "github-actions[bot]@users.noreply.github.com"
