@@ -1,6 +1,7 @@
 name: Check Index HTML final version
 
-on: [workflow_dispatch, push]
+on: 
+  workflow_dispatch:
 
 jobs:
  check-and-update:
