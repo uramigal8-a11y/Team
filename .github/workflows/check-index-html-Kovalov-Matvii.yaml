@@ -1,4 +1,4 @@
-name: Check_Index_HTML
+name: Check_Index_HTML_by_Kovalov_Matvii
 
 on: 
   workflow_dispatch:
