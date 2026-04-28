@@ -1,0 +1,33 @@
+name: Check Index HTML final version
+
+on: 
+  workflow_dispatch:
+
+jobs:
+ check-and-update:
+  runs-on: ubuntu-latest
+  permissions:
+   contents: write
+  steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+    with:
+     token: ${{ secrets.MY_PERSONAL_TOKEN }}
+     fetch-depth: 0
+
+  - name: Run check script
+    run: bash check_index.sh
+
+  - name: Update README if index.html exists
+    run: |
+      git config user.name "github-actions[bot]"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git fetch origin main
+      git checkout -B main origin/main
+      touch README.md
+      echo "Branch: ${{ github.ref_name }} | index.html exists ✅" >> README.md
+      git add README.md
+      if ! git diff --cached --quiet; then
+        git commit -m "Автоматичне оновлення README"
+        git push origin main
+      fi

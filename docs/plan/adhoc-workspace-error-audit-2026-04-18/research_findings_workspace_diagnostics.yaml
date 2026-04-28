@@ -1,0 +1,235 @@
+plan_id: adhoc-workspace-error-audit-2026-04-18
+objective: "Виявити поточні помилки workspace для запиту: 'У мене появилися якісь помилки виправи їх'"
+focus_area: workspace_diagnostics
+created_at: "2026-04-18"
+created_by: gem-researcher
+status: completed
+
+tldr: |
+  - За результатом повної перевірки diagnostics знайдено 9 помилок, усі в YAML-файлах (джерело: get_errors, 2026-04-18).
+  - У .github/workflows/check-index-html.yml зафіксовано синтаксичну/контрактну проблему: файл порожній, тому workflow YAML не має валідної структури (джерело: .github/workflows/check-index-html.yml:1, get_errors line 2).
+  - У docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml є синтаксичний злам структури від line 216 та дубльовані ключі верхнього рівня (джерело: diagnostics line 216/223/231/238/267/277, файл 180-278).
+  - Ознак помилок у HTML/CSS/JS не перевірялося вручну, бо diagnostics уже повернув фактичні помилки (умова додаткової перевірки застосовується лише за відсутності помилок).
+
+research_metadata:
+  methodology: "Повний diagnostics-скан через get_errors; контекст помилок через read_file; верифікація repo-конвенцій через AGENTS.md і docs/PRD.yaml; підрахунок рядків через PowerShell Measure-Object."
+  scope: "Весь workspace на рівні diagnostics + детальний аналіз лише файлів з помилками."
+  confidence: high
+  coverage: 100
+  decision_blockers: 0
+  research_blockers: 0
+
+files_analyzed:
+- file: check-index-html.yml
+  path: .github/workflows/check-index-html.yml
+  purpose: "CI workflow для перевірки index HTML (очікувано YAML-конфігурація GitHub Actions)."
+  key_elements:
+  - element: "workflow root mapping"
+    type: pattern
+    location: ".github/workflows/check-index-html.yml:1"
+    description: "Файл порожній (0 рядків), отже відсутні обов'язкові ключі YAML workflow; diagnostics показує parse-помилку на line 2."
+  language: YAML
+  lines: 0
+
+- file: research_findings_homepage.yaml
+  path: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  purpose: "Дослідницький звіт у YAML для модернізації homepage."
+  key_elements:
+  - element: "dangling sequence item"
+    type: pattern
+    location: "docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml:216"
+    description: "Рядок '- from: index.html' з'являється після завершеного блоку і порушує карту верхнього рівня (implicit map key errors)."
+  - element: "duplicate top-level keys"
+    type: pattern
+    location: "docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml:223"
+    description: "Повторно зустрічаються ключі related_technology_stack, related_conventions, related_dependencies, open_questions, gaps, що порушує унікальність map keys."
+  language: YAML
+  lines: 278
+
+patterns_found:
+- category: structure
+  pattern: "YAML parse failure due to structurally misplaced sequence"
+  description: "Після секції gaps вставлено список '- from: ...' без відповідного батьківського ключа на поточному рівні."
+  examples:
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "216"
+    snippet: "- from: index.html"
+  prevalence: rare
+
+- category: structure
+  pattern: "Duplicate mapping keys at YAML top level"
+  description: "Ті самі ключі верхнього рівня оголошені повторно, що невалідно для YAML parser у diagnostics."
+  examples:
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "223"
+    snippet: "related_technology_stack:"
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "231"
+    snippet: "related_conventions:"
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "238"
+    snippet: "related_dependencies:"
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "267"
+    snippet: "open_questions:"
+  - file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+    location: "277"
+    snippet: "gaps:"
+  prevalence: rare
+
+- category: architecture
+  pattern: "Configuration contract breach via empty workflow file"
+  description: "Файл workflow існує, але не містить жодної YAML-структури; це одночасно синтаксична і контрактна поломка CI-конфігурації."
+  examples:
+  - file: .github/workflows/check-index-html.yml
+    location: "2"
+    snippet: "Expected a scalar value, a sequence, or a mapping"
+  prevalence: rare
+
+related_architecture:
+  components_relevant_to_domain:
+  - component: "VS Code diagnostics (get_errors)"
+    responsibility: "Постачає compile/parse помилки по всьому workspace."
+    location: "workspace-wide"
+    relationship_to_domain: "domain depends on this"
+  - component: ".github/workflows/check-index-html.yml"
+    responsibility: "Опис CI-перевірки у YAML."
+    location: ".github/workflows/check-index-html.yml"
+    relationship_to_domain: "domain depends on this"
+  - component: "docs/plan/*/research_findings*.yaml"
+    responsibility: "Збереження дослідницьких артефактів у YAML."
+    location: "docs/plan/"
+    relationship_to_domain: "domain depends on this"
+  interfaces_used_by_domain:
+  - interface: "YAML parser diagnostics"
+    location: "get_errors output"
+    usage_pattern: "Парсинг файлів *.yml/*.yaml для syntax/structure помилок"
+  data_flow_involving_domain: "Файл у workspace -> diagnostics parser -> список compileError із line/message -> ручна класифікація причин."
+  key_relationships_to_domain:
+  - from: ".github/workflows/check-index-html.yml"
+    to: "CI workflow contract"
+    relationship: "configures"
+  - from: "docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml"
+    to: "YAML diagnostics parser"
+    relationship: "parsed_by"
+
+related_technology_stack:
+  languages_used_in_domain:
+  - YAML
+  - Markdown
+  - HTML5
+  - CSS3
+  - JavaScript
+  frameworks_used_in_domain:
+  - name: "GitHub Actions"
+    usage_in_domain: "Очікувана інтерпретація .github/workflows/*.yml"
+  libraries_used_in_domain: []
+  external_apis_used_in_domain: []
+
+related_conventions:
+  naming_patterns_in_domain: "Research files naming: docs/plan/<plan_id>/research_findings_<focus>.yaml (джерело: існуюча структура docs/plan)."
+  structure_of_domain: "YAML-звіти мають повторювані секції верхнього рівня; ключі повинні бути унікальними."
+  error_handling_in_domain: "Основний механізм — статичні parser diagnostics у редакторі."
+  testing_in_domain: "Автотестів/літерів для YAML у repo не виявлено; використовується diagnostics IDE."
+  documentation_in_domain: "Конвенції стилів/контрактів зафіксовані в AGENTS.md та docs/PRD.yaml."
+
+related_dependencies:
+  internal:
+  - component: "AGENTS.md"
+    relationship_to_domain: "Описує контрактні правила розмітки/теми для сторінок."
+    direction: outbound
+  - component: "docs/PRD.yaml"
+    relationship_to_domain: "Фіксує статус і рішення по фічах, що пояснює очікуваний стан файлів."
+    direction: outbound
+  external:
+  - name: "GitHub Actions YAML schema/parser"
+    purpose_for_domain: "Валідність workflow-конфігурації .yml"
+
+domain_security_considerations:
+  sensitive_areas: []
+  authentication_patterns_in_domain: "Не застосовується для цього аналізу."
+  authorization_patterns_in_domain: "Не застосовується для цього аналізу."
+  data_validation_in_domain: "Валідація відбувається через YAML parser diagnostics."
+
+testing_patterns:
+  framework: "IDE diagnostics"
+  coverage_areas:
+  - "YAML синтаксис і структура map/sequence ключів"
+  - "Наявність parse-помилок у workspace"
+  test_organization: "Разовий повний прогін diagnostics по всьому workspace"
+  mock_patterns: []
+
+open_questions:
+- question: "Чи мав файл .github/workflows/check-index-html.yml бути тимчасово очищений, чи це випадкове видалення вмісту?"
+  context: "Файл існує, але порожній; це причина parse error в CI-конфігурації."
+  type: research
+  affects: ["workspace-diagnostics"]
+- question: "Чи блок з рядка 216 у research_findings_homepage.yaml є залишком merge/copy-paste артефакту?"
+  context: "Починаючи з рядка 216 структура дублює раніше описані секції і ламає YAML."
+  type: research
+  affects: ["workspace-diagnostics"]
+
+gaps:
+- area: "Джерело появи помилок"
+  description: "Не досліджувався git-історичний коміт, який ввів порожній workflow та дубль ключів у YAML."
+  impact: nice_to_know
+  affects: ["workspace-diagnostics"]
+- area: "Додатковий ручний аудит HTML/CSS/JS"
+  description: "Не виконувався, бо умова користувача вимагає його лише якщо diagnostics не показує помилок."
+  impact: nice_to_know
+  affects: ["workspace-diagnostics"]
+
+error_inventory:
+- file: .github/workflows/check-index-html.yml
+  line: 2
+  classification: "синтаксис; контракт конфігурації"
+  message: "Expected a scalar value, a sequence, or a mapping"
+  probable_cause: "Порожній YAML-файл workflow (0 рядків) без кореневої структури."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 216
+  classification: "синтаксис"
+  message: "A block sequence may not be used as an implicit map key"
+  probable_cause: "Список '- from: ...' розміщено без коректного батьківського ключа мапи."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 216
+  classification: "синтаксис"
+  message: "Implicit keys need to be on a single line"
+  probable_cause: "Порушення структури implicit key через некоректний відступ/контекст списку."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 216
+  classification: "синтаксис"
+  message: "Implicit map keys need to be followed by map values"
+  probable_cause: "Парсер сприймає елемент списку як ключ без валідного значення мапи."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 223
+  classification: "синтаксис"
+  message: "Map keys must be unique"
+  probable_cause: "Повторне оголошення верхньорівневого ключа related_technology_stack."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 231
+  classification: "синтаксис"
+  message: "Map keys must be unique"
+  probable_cause: "Повторне оголошення верхньорівневого ключа related_conventions."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 238
+  classification: "синтаксис"
+  message: "Map keys must be unique"
+  probable_cause: "Повторне оголошення верхньорівневого ключа related_dependencies."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 267
+  classification: "синтаксис"
+  message: "Map keys must be unique"
+  probable_cause: "Повторне оголошення верхньорівневого ключа open_questions."
+
+- file: docs/plan/adhoc-index-modernization-2026-04-11/research_findings_homepage.yaml
+  line: 277
+  classification: "синтаксис"
+  message: "Map keys must be unique"
+  probable_cause: "Повторне оголошення верхньорівневого ключа gaps."
