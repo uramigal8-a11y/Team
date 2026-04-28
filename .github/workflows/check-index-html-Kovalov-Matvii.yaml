@@ -1,4 +1,4 @@
-name: CheckIncdexHTMLKovalovMatvii
+name: CheckIncdexHTMLKovalovMatviiFINAL
 
 on: 
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
   - name: Checkout code
     uses: actions/checkout@v4
     with:
-     token: ${{ secrets.MATVII_SECRET }}
+     token: ${{ secrets.MY_PERSONAL_TOKEN }}
      fetch-depth: 0
 
   - name: Run check script
