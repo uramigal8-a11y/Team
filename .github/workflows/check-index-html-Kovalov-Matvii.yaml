@@ -1,4 +1,4 @@
-name: Check_Index_HTML_by_Kovalov_Matvii
+name: CheckIncdexHTMLKovalovMatviiFINAL
 
 on: 
   workflow_dispatch:
@@ -12,14 +12,13 @@ jobs:
   - name: Checkout code
     uses: actions/checkout@v4
     with:
-     token: ${{ secrets.MATVII_SECRET }}
+     token: ${{ secrets.MY_PERSONAL_TOKEN }}
      fetch-depth: 0
 
   - name: Run check script
     run: bash check_index.sh
 
   - name: Update README if index.html exists
-    if: env.FOUND == 'true'
     run: |
       git config user.name "github-actions[bot]"
       git config user.email "github-actions[bot]@users.noreply.github.com"

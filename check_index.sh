@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -f "index.html" ]; then
+if [ -f index.html ]; then
   echo "index.html exists"
   exit 0
 else
