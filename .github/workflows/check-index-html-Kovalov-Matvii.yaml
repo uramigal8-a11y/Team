@@ -1,4 +1,4 @@
-name: Check Index HTML final version
+name: Check_Index_HTML
 
 on: 
   workflow_dispatch:
